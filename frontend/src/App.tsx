@@ -59,6 +59,14 @@ export default function App() {
     });
   };
 
+  const handleToggleAll = () => {
+    setSelected((prev) => {
+      const allSelected = tasks.every((t) => prev.has(t.id));
+      if (allSelected) return new Set();
+      return new Set(tasks.map((t) => t.id));
+    });
+  };
+
   const handleDeleteSelected = async () => {
     await Promise.all([...selected].map((id) => deleteTask(id)));
     setSelected(new Set());
@@ -94,7 +102,9 @@ export default function App() {
           isLoading={isLoading}
           isError={isError}
           selected={selected}
+          allSelected={tasks.length > 0 && tasks.every((t) => selected.has(t.id))}
           onToggleSelect={handleToggleSelect}
+          onToggleAll={handleToggleAll}
           onComplete={(id) => completeMutation.mutate(id)}
           onUpdate={(id, title) => updateMutation.mutate({ id, title })}
           onDelete={(id) => deleteMutation.mutate(id)}
