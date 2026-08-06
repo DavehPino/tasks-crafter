@@ -18,6 +18,32 @@ A proof-of-concept task management tool for live commerce session preparation. B
 
 ---
 
+## 🧭 Stack Decision
+
+### Why not Next.js + Hono?
+
+Next.js with its built-in API routes + Hono (lightweight, edge-ready framework) would have been the more modern choice:
+
+- **Hono** is faster than Express, has native TypeScript support, and runs on edge runtimes.
+- **Next.js API routes** eliminate the need for a separate backend server — everything lives in one project.
+- **Deployment simplicity:** One repo, one platform (Vercel), zero CORS issues.
+
+### Why Vite + Express instead?
+
+Given the 4–5 hour time constraint and POC scope, we chose pragmatism over novelty:
+
+| Factor | Vite + Express | Next.js + Hono |
+|--------|---------------|----------------|
+| **Setup speed** | Scaffolds in seconds, zero config | Requires understanding App Router, API routes, edge vs Node runtime |
+| **Decoupling** | Backend and frontend are fully independent services | Tightly coupled in a single Next.js project |
+| **Team familiarity** | Express is universally known; Vite is the React standard | Hono is newer; Next.js API routes have quirks (edge runtime, middleware, route handlers) |
+| **Deployment flexibility** | Backend and frontend can deploy anywhere independently | Tied to Vercel (or similar) for full functionality |
+| **Time to first working feature** | ~30 min to have CRUD API + SPA talking to each other | ~1–2h to nail down routing, middleware, and deployment config |
+
+**Bottom line:** For a POC where speed and clarity matter more than architectural elegance, separating concerns with Vite (frontend) and Express (backend) was the faster, safer bet. Next.js + Hono would shine in a production system with edge requirements — but that's not this project.
+
+---
+
 ## 🏗️ Stack
 
 | Layer             | Technology                       | Rationale                                                 |
