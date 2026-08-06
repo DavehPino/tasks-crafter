@@ -1,5 +1,9 @@
 # AGENTS.md
 
+# Main instructions
+
+Do not commit and push unless is asked by the user.
+
 ## Project Context
 
 Internal task management tool for live commerce session preparation. Used by operators during session setup.
@@ -11,6 +15,7 @@ Internal task management tool for live commerce session preparation. Used by ope
 ## Core Requirements
 
 ### Functional
+
 - Create new tasks from templates or custom text
 - Update task titles inline
 - Mark tasks as completed
@@ -18,6 +23,7 @@ Internal task management tool for live commerce session preparation. Used by ope
 - View all tasks with pagination
 
 ### Technical
+
 - Backend: Node.js + Express + TypeScript
 - Frontend: React + Vite + TypeScript
 - API-first design; all operations exposed via endpoints
@@ -31,27 +37,27 @@ Internal task management tool for live commerce session preparation. Used by ope
 
 ## Evaluation Criteria
 
-| Criterion | Focus |
-|-----------|-------|
-| API Usability | RESTful design, clear error responses |
-| Delivery Completeness | All CRUD operations functional |
-| Ease of Setup | Single `npm run dev` command |
-| Clarity | Clean separation of concerns |
-| Production Awareness | Documented gaps and scaling path |
-| Scoping | POC-appropriate, no over-engineering |
+| Criterion             | Focus                                 |
+| --------------------- | ------------------------------------- |
+| API Usability         | RESTful design, clear error responses |
+| Delivery Completeness | All CRUD operations functional        |
+| Ease of Setup         | Single `npm run dev` command          |
+| Clarity               | Clean separation of concerns          |
+| Production Awareness  | Documented gaps and scaling path      |
+| Scoping               | POC-appropriate, no over-engineering  |
 
 ---
 
 ## API Endpoints
 
-| Method | Route | Description |
-|--------|-------|-------------|
-| `GET` | `/api/tasks` | List (paginated) |
-| `GET` | `/api/tasks/:id` | Fetch single |
-| `POST` | `/api/tasks` | Create |
-| `PUT` | `/api/tasks/:id` | Update title |
-| `PATCH` | `/api/tasks/:id/complete` | Mark completed |
-| `DELETE` | `/api/tasks/:id` | Delete |
+| Method   | Route                     | Description      |
+| -------- | ------------------------- | ---------------- |
+| `GET`    | `/api/tasks`              | List (paginated) |
+| `GET`    | `/api/tasks/:id`          | Fetch single     |
+| `POST`   | `/api/tasks`              | Create           |
+| `PUT`    | `/api/tasks/:id`          | Update title     |
+| `PATCH`  | `/api/tasks/:id/complete` | Mark completed   |
+| `DELETE` | `/api/tasks/:id`          | Delete           |
 
 **Validation:** Zod schemas validate `POST` and `PUT` bodies. Returns `400` with structured errors.
 
@@ -91,20 +97,21 @@ tasks-crafter/
 
 ## What's Deliberately NOT Implemented
 
-| Feature | Why Not |
-|---------|---------|
-| Database persistence | In-memory is sufficient for POC |
-| Authentication | Internal tool; single operator assumed |
-| Filtering/search | Low task volume (~5-10) |
-| Optimistic UI updates | Mutations are fast enough |
-| Error UI components | Console logging acceptable |
-| Security hardening | Localhost only; trust boundary is internal |
+| Feature               | Why Not                                    |
+| --------------------- | ------------------------------------------ |
+| Database persistence  | In-memory is sufficient for POC            |
+| Authentication        | Internal tool; single operator assumed     |
+| Filtering/search      | Low task volume (~5-10)                    |
+| Optimistic UI updates | Mutations are fast enough                  |
+| Error UI components   | Console logging acceptable                 |
+| Security hardening    | Localhost only; trust boundary is internal |
 
 ---
 
 ## Production Requirements (If Deployed)
 
 ### Must-have
+
 - [ ] Database (PostgreSQL + Prisma)
 - [ ] Authentication (JWT)
 - [ ] Authorization (roles)
@@ -113,6 +120,7 @@ tasks-crafter/
 - [ ] HTTPS
 
 ### Should-have
+
 - [ ] Rate limiting
 - [ ] CORS allowlist
 - [ ] Security headers (helmet)
@@ -120,6 +128,7 @@ tasks-crafter/
 - [ ] CI/CD pipeline
 
 ### Nice-to-have
+
 - [ ] Docker containerization
 - [ ] Redis caching
 - [ ] E2E tests
@@ -129,9 +138,9 @@ tasks-crafter/
 
 ## Technical Risks
 
-| Risk | Impact |
-|------|--------|
-| Data loss on restart | High (expected in POC) |
-| Single-process | High (no clustering) |
-| No auth | Medium (internal use) |
-| CORS hardcoded | Medium (localhost only) |
+| Risk                 | Impact                  |
+| -------------------- | ----------------------- |
+| Data loss on restart | High (expected in POC)  |
+| Single-process       | High (no clustering)    |
+| No auth              | Medium (internal use)   |
+| CORS hardcoded       | Medium (localhost only) |
