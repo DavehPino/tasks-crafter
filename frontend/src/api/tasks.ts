@@ -2,6 +2,16 @@ import type { Task, CreateTaskDTO, UpdateTaskDTO } from '../schemas/task';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001/api';
 
+export interface PaginatedResponse<T> {
+  tasks: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 const request = async <T>(path: string, options?: RequestInit): Promise<T> => {
   const res = await fetch(`${API_URL}${path}`, {
     headers: { 'Content-Type': 'application/json' },
@@ -15,8 +25,8 @@ const request = async <T>(path: string, options?: RequestInit): Promise<T> => {
   return res.json();
 };
 
-export const fetchTasks = (): Promise<Task[]> =>
-  request<Task[]>('/tasks');
+export const fetchTasks = (page: number = 1): Promise<PaginatedResponse<Task>> =>
+  request<PaginatedResponse<Task>>(`/tasks?page=${page}&limit=5`);
 
 export const createTask = (dto: CreateTaskDTO): Promise<Task> =>
   request<Task>('/tasks', { method: 'POST', body: JSON.stringify(dto) });

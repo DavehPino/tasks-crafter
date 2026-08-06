@@ -17,13 +17,18 @@ Internal task management tool for live commerce session preparation.
 
 | Method | Route | Description |
 |--------|-------|-------------|
-| `GET` | `/api/tasks` | List all tasks |
+| `GET` | `/api/tasks` | List tasks (paginated, 5 per page) |
+| `GET` | `/api/tasks/:id` | Fetch a single task |
 | `POST` | `/api/tasks` | Create a task |
 | `PUT` | `/api/tasks/:id` | Update task title |
 | `PATCH` | `/api/tasks/:id/complete` | Mark task as completed |
 | `DELETE` | `/api/tasks/:id` | Delete a task |
 
 Request bodies are validated with Zod and return structured `400` errors on failure.
+
+### Query Parameters
+
+- `GET /api/tasks` accepts optional `page` (default: 1) and `limit` (default: 5, max: 100) parameters for pagination.
 
 ## Setup
 
@@ -85,9 +90,20 @@ tasks-crafter/
 
 - **Persistence** — no database; state lives in memory.
 - **Authentication** — no login or session management.
-- **Pagination / filtering** — all tasks are returned in a single response.
+- **Filtering** — no search, status filters, or sorting.
 - **Optimistic updates** — mutations wait for server confirmation before updating the UI.
 - **Error boundary UI** — API errors surface as console output during this POC phase.
+
+## Engineering Notes: Pagination
+
+**Pagination is implemented but unnecessary for this POC.** A live commerce session typically involves 5–10 setup tasks max, so pagination is overkill. However, it's included to demonstrate:
+
+- API design best practices (RESTful query parameters)
+- Pagination patterns with metadata (page, limit, total, totalPages)
+- Frontend state management with page tracking
+- Scalability awareness (if the system were to grow beyond the POC scope)
+
+In production, this would be the foundation for handling thousands of tasks. For this POC, it's purely an engineering bonus.
 
 ## What Would Be Required to Productionize
 

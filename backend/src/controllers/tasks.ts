@@ -3,8 +3,27 @@ import * as store from '../store/tasks';
 import { parseBody } from '../helpers/parseBody';
 import { createTaskSchema, updateTaskSchema, CreateTaskDTO, UpdateTaskDTO } from '../schemas/task';
 
-export const getAllTasks = (_req: Request, res: Response): void => {
-  res.json(store.getAll());
+export const getAllTasks = (req: Request, res: Response): void => {
+  // Note: Pagination is unnecessary for this POC (expected ~5-10 tasks max during a session).
+  // Implemented here to demonstrate production-ready API design and pagination patterns.
+  const allTasks = store.getAll();
+  const page = Math.max(1, parseInt(req.query.page as string) || 1);
+  const limit = Math.max(1, Math.min(100, parseInt(req.query.limit as string) || 5));
+  
+  const total = allTasks.length;
+  const totalPages = Math.ceil(total / limit);
+  const start = (page - 1) * limit;
+  const tasks = allTasks.slice(start, start + limit);
+
+  res.json({
+    tasks,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+    },
+  });
 };
 
 export const getTaskById = (req: Request<{ id: string }>, res: Response): void => {

@@ -7,11 +7,15 @@ import { TaskList } from './components/TaskList'
 export default function App() {
   const queryClient = useQueryClient()
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [page, setPage] = useState(1)
 
-  const { data: tasks = [], isLoading, isError } = useQuery({
-    queryKey: ['tasks'],
-    queryFn: fetchTasks,
+  const { data: response, isLoading, isError } = useQuery({
+    queryKey: ['tasks', page],
+    queryFn: () => fetchTasks(page),
   })
+
+  const tasks = response?.tasks ?? []
+  const pagination = response?.pagination
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['tasks'] })
 
@@ -82,11 +86,34 @@ export default function App() {
           onDelete={(id) => deleteMutation.mutate(id)}
         />
 
-        {tasks.length > 0 && (
-          <p className="text-xs text-gray-400 mt-4 text-right">
-            {tasks.filter((t) => t.status === 'completed').length} / {tasks.length} completed
+        <div className="mt-6 flex items-center justify-between text-xs">
+          <p className="text-gray-400">
+            {pagination ? `${pagination.page} / ${pagination.totalPages}` : '—'}
           </p>
-        )}
+          {pagination && pagination.totalPages > 1 && (
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-3 py-1 border border-gray-300 rounded text-xs hover:border-[#FF9A56] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                ← Prev
+              </button>
+              <button
+                onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
+                disabled={page === pagination.totalPages}
+                className="px-3 py-1 border border-gray-300 rounded text-xs hover:border-[#FF9A56] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Next →
+              </button>
+            </div>
+          )}
+          {tasks.length > 0 && (
+            <p className="text-gray-400">
+              {tasks.filter((t) => t.status === 'completed').length} / {tasks.length} on page
+            </p>
+          )}
+        </div>
       </div>
     </div>
   )
