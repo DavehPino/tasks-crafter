@@ -8,26 +8,26 @@ A proof-of-concept task management tool for live commerce session preparation. B
 
 ## 📋 Functional Requirements — All Complete
 
-| Requirement | Status | Details |
-|-------------|--------|---------|
-| Create new tasks | ✅ | Via template selector or custom text; validated with Zod |
-| Update task title | ✅ | Inline edit with double-click behavior or edit button |
-| Mark tasks as completed | ✅ | Via checkmark button; tasks display with strikethrough |
-| Delete tasks | ✅ | Individual delete or batch delete with "select all" |
-| View all tasks | ✅ | Paginated list (5 per page) with full task details |
+| Requirement             | Status | Details                                                  |
+| ----------------------- | ------ | -------------------------------------------------------- |
+| Create new tasks        | ✅     | Via template selector or custom text; validated with Zod |
+| Update task title       | ✅     | Inline edit with double-click behavior or edit button    |
+| Mark tasks as completed | ✅     | Via checkmark button; tasks display with strikethrough   |
+| Delete tasks            | ✅     | Individual delete or batch delete with "select all"      |
+| View all tasks          | ✅     | Paginated list (5 per page) with full task details       |
 
 ---
 
 ## 🏗️ Stack
 
-| Layer | Technology | Rationale |
-|-------|-----------|-----------|
-| **Backend** | Node.js 18+, Express, TypeScript | Fast iteration, type safety, minimal boilerplate |
-| **Frontend** | React 18, Vite, TypeScript | Quick HMR, modern tooling, familiar ecosystem |
-| **Validation** | Zod | Type-safe, schema-driven validation on both client/server |
-| **Data Fetching** | TanStack Query, native Fetch | Automatic caching, refetch, sync across browser tabs |
-| **Styling** | Tailwind CSS v4 | Utility-first, rapid UI iteration, design tokens |
-| **Storage** | In-memory (Map) | Suitable for POC scope; no external dependencies |
+| Layer             | Technology                       | Rationale                                                 |
+| ----------------- | -------------------------------- | --------------------------------------------------------- |
+| **Backend**       | Node.js 18+, Express, TypeScript | Fast iteration, type safety, minimal boilerplate          |
+| **Frontend**      | React 18, Vite, TypeScript       | Quick HMR, modern tooling, familiar ecosystem             |
+| **Validation**    | Zod                              | Type-safe, schema-driven validation on both client/server |
+| **Data Fetching** | TanStack Query, native Fetch     | Automatic caching, refetch, sync across browser tabs      |
+| **Styling**       | Tailwind CSS v4                  | Utility-first, rapid UI iteration, design tokens          |
+| **Storage**       | In-memory (Map)                  | Suitable for POC scope; no external dependencies          |
 
 ---
 
@@ -54,6 +54,7 @@ npm run dev
 ```
 
 **Available commands:**
+
 ```bash
 npm run dev              # Start both backend and frontend
 npm run dev:backend      # Backend only
@@ -61,6 +62,7 @@ npm run dev:frontend     # Frontend only
 ```
 
 **Verify setup:**
+
 - Backend health check: `curl http://localhost:3001/health`
 - Frontend: Open `http://localhost:5173` in your browser
 
@@ -70,10 +72,10 @@ npm run dev:frontend     # Frontend only
 
 66 tests across backend and frontend, all passing.
 
-| Suite | Tests | Coverage |
-|-------|-------|----------|
-| Backend (Jest) | 40 | Store, schemas, helpers, controllers |
-| Frontend (Jest + RTL) | 26 | Schemas, TaskCreator, TaskItem, TaskList |
+| Suite                 | Tests | Coverage                                 |
+| --------------------- | ----- | ---------------------------------------- |
+| Backend (Jest)        | 40    | Store, schemas, helpers, controllers     |
+| Frontend (Jest + RTL) | 26    | Schemas, TaskCreator, TaskItem, TaskList |
 
 ```bash
 npm test              # Run all tests (backend + frontend)
@@ -86,18 +88,19 @@ npm run test:watch    # Watch mode for both
 
 ### Endpoints
 
-| Method | Route | Description | Request Body |
-|--------|-------|-------------|--------------|
-| `GET` | `/api/tasks` | List tasks (paginated) | Query: `?page=1&limit=5` |
-| `GET` | `/api/tasks/:id` | Fetch single task | — |
-| `POST` | `/api/tasks` | Create task | `{ "title": "string" }` |
-| `PUT` | `/api/tasks/:id` | Update task title | `{ "title": "string" }` |
-| `PATCH` | `/api/tasks/:id/complete` | Mark as completed | — |
-| `DELETE` | `/api/tasks/:id` | Delete task | — |
+| Method   | Route                     | Description            | Request Body             |
+| -------- | ------------------------- | ---------------------- | ------------------------ |
+| `GET`    | `/api/tasks`              | List tasks (paginated) | Query: `?page=1&limit=5` |
+| `GET`    | `/api/tasks/:id`          | Fetch single task      | —                        |
+| `POST`   | `/api/tasks`              | Create task            | `{ "title": "string" }`  |
+| `PUT`    | `/api/tasks/:id`          | Update task title      | `{ "title": "string" }`  |
+| `PATCH`  | `/api/tasks/:id/complete` | Mark as completed      | —                        |
+| `DELETE` | `/api/tasks/:id`          | Delete task            | —                        |
 
 ### Response Format
 
 **Paginated response (GET /api/tasks):**
+
 ```json
 {
   "tasks": [
@@ -119,11 +122,10 @@ npm run test:watch    # Watch mode for both
 ```
 
 **Error response (400):**
+
 ```json
 {
-  "errors": [
-    { "field": "title", "message": "Title is too long" }
-  ]
+  "errors": [{ "field": "title", "message": "Title is too long" }]
 }
 ```
 
@@ -195,15 +197,15 @@ tasks-crafter/
 
 ## 🚫 Deliberately Not Implemented
 
-| Feature | Why | Trade-off |
-|---------|-----|-----------|
-| **Database persistence** | In-memory storage is sufficient for session lifetime | All data lost on server restart |
-| **Authentication/authorization** | Internal use case; assumed single operator | No multi-user audit trail |
-| **Filtering & search** | Low task volume (~5-10 per session) | Can't search or filter by status |
-| **Optimistic updates** | Adds complexity; mutations are fast enough | Brief loading states on each action |
-| **Error UI components** | POC doesn't need polish; errors are logged | Errors don't display in UI; check console |
-| **Input sanitization (beyond Zod)** | Zod handles basic validation; XSS is low risk | No DomPurify; assumes trusted internal users |
-| **Rate limiting / security headers** | POC running on localhost | No helmet, no rate limiting |
+| Feature                              | Why                                                  | Trade-off                                    |
+| ------------------------------------ | ---------------------------------------------------- | -------------------------------------------- |
+| **Database persistence**             | In-memory storage is sufficient for session lifetime | All data lost on server restart              |
+| **Authentication/authorization**     | Internal use case; assumed single operator           | No multi-user audit trail                    |
+| **Filtering & search**               | Low task volume (~5-10 per session)                  | Can't search or filter by status             |
+| **Optimistic updates**               | Adds complexity; mutations are fast enough           | Brief loading states on each action          |
+| **Error UI components**              | POC doesn't need polish; errors are logged           | Errors don't display in UI; check console    |
+| **Input sanitization (beyond Zod)**  | Zod handles basic validation; XSS is low risk        | No DomPurify; assumes trusted internal users |
+| **Rate limiting / security headers** | POC running on localhost                             | No helmet, no rate limiting                  |
 
 ---
 
@@ -212,11 +214,13 @@ tasks-crafter/
 To deploy this system to production, the following changes are **mandatory:**
 
 ### Storage & Data
+
 - [ ] **Database:** Replace in-memory Map with PostgreSQL/MySQL via Prisma ORM
 - [ ] **Migrations:** Schema versioning and rollback capability
 - [ ] **Backups:** Automated daily backups with recovery testing
 
 ### Security
+
 - [ ] **Authentication:** JWT or session-based auth; multi-user support
 - [ ] **Authorization:** Role-based access control (e.g., operator, admin, viewer)
 - [ ] **Input sanitization:** DomPurify on frontend; additional server-side escaping
@@ -226,19 +230,21 @@ To deploy this system to production, the following changes are **mandatory:**
 - [ ] **HTTPS:** TLS/SSL in production
 
 ### Observability & Operations
+
 - [ ] **Structured logging:** pino or winston for machine-readable logs
 - [ ] **Metrics:** Prometheus-compatible endpoints for request counts, latencies, errors
 - [ ] **Error tracking:** Sentry or similar for production bug detection
 - [ ] **Health checks:** Liveness and readiness probes for Kubernetes/load balancers
 
 ### Testing & CI/CD
-- [ ] **Unit tests:** Jest for controllers, utilities, components
+
 - [ ] **Integration tests:** Supertest for API endpoints with real request/response flow
 - [ ] **E2E tests:** Playwright or Cypress for user workflows
 - [ ] **CI/CD:** GitHub Actions (or similar) for linting, testing, building, deploying
 - [ ] **Code coverage:** Aim for >80% coverage
 
 ### Infrastructure & Deployment
+
 - [ ] **Containerization:** Docker images for backend and frontend
 - [ ] **Orchestration:** docker-compose or Kubernetes manifests
 - [ ] **Load balancing:** Reverse proxy (nginx) for multiple backend instances
@@ -248,6 +254,7 @@ To deploy this system to production, the following changes are **mandatory:**
 - [ ] **Env management:** Secrets vault (AWS Secrets Manager, HashiCorp Vault)
 
 ### Performance
+
 - [ ] **Caching strategy:** Redis for session/task caching; HTTP cache headers
 - [ ] **Database indexing:** Indexes on frequently queried fields
 - [ ] **API optimization:** GraphQL (or REST filtering) to reduce over-fetching
@@ -257,17 +264,17 @@ To deploy this system to production, the following changes are **mandatory:**
 
 ## ⚠️ Known Technical Risks & Limitations
 
-| Risk | Severity | Mitigation in Prod |
-|------|----------|-------------------|
-| **All data lost on restart** | High | Implement database + persistent storage |
-| **Single-process** — no clustering | High | Use process manager (PM2) or Kubernetes |
-| **No query validation on params** | Medium | Add query param schema validation |
-| **CORS hardcoded to localhost** | Medium | Use env-based allowlist |
-| **No request logging** | Medium | Add morgan (Express) logging middleware |
-| **TypeScript strict mode disabled** | Low | Enable `strict: true` in tsconfig.json |
-| **Fetch-based API calls (no error retry)** | Low | Add exponential backoff to request helper |
-| **No database connection pooling** | N/A for POC | Critical for Postgres in production |
-| **In-memory store not thread-safe** | Low | Database handles concurrency |
+| Risk                                       | Severity    | Mitigation in Prod                        |
+| ------------------------------------------ | ----------- | ----------------------------------------- |
+| **All data lost on restart**               | High        | Implement database + persistent storage   |
+| **Single-process** — no clustering         | High        | Use process manager (PM2) or Kubernetes   |
+| **No query validation on params**          | Medium      | Add query param schema validation         |
+| **CORS hardcoded to localhost**            | Medium      | Use env-based allowlist                   |
+| **No request logging**                     | Medium      | Add morgan (Express) logging middleware   |
+| **TypeScript strict mode disabled**        | Low         | Enable `strict: true` in tsconfig.json    |
+| **Fetch-based API calls (no error retry)** | Low         | Add exponential backoff to request helper |
+| **No database connection pooling**         | N/A for POC | Critical for Postgres in production       |
+| **In-memory store not thread-safe**        | Low         | Database handles concurrency              |
 
 ---
 
@@ -289,6 +296,7 @@ This POC was delivered within the 4–5 hour constraint while maintaining:
 **GitHub:** [github.com/DavehPino/tasks-crafter](https://github.com/DavehPino/tasks-crafter)
 
 Clone it, run it, deploy it:
+
 ```bash
 git clone https://github.com/DavehPino/tasks-crafter.git
 cd tasks-crafter && npm install && npm run dev
