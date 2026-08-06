@@ -48,7 +48,7 @@ export function TaskItem({
         type="checkbox"
         checked={isSelected}
         onChange={() => onToggleSelect(task.id)}
-        className="w-4 h-4 accent-[#FF9A56] cursor-pointer shrink-0"
+        className="w-4 h-4 accent-terrific-orange cursor-pointer shrink-0"
       />
 
       <div className="flex-1 min-w-0">
@@ -61,7 +61,7 @@ export function TaskItem({
               onKeyDown={handleEditKeyDown}
               onBlur={handleEditSubmit}
               autoFocus
-              className="w-full border border-[#FF9A56] rounded px-2 py-0.5 text-sm focus-terrific"
+              className="w-full border border-terrific-orange rounded px-2 py-0.5 text-sm focus-terrific"
             />
           </form>
         ) : (
@@ -77,14 +77,14 @@ export function TaskItem({
         <>
           <button
             onClick={() => onComplete(task.id)}
-            className="text-gray-400 hover:text-[#FF9A56] transition-colors text-sm shrink-0"
+            className="text-gray-400 hover:text-terrific-orange transition-colors text-sm shrink-0"
             aria-label="Mark as completed"
           >
             ✓
           </button>
           <button
             onClick={() => setIsEditing(true)}
-            className="text-gray-400 hover:text-[#FF6B9D] transition-colors text-sm shrink-0"
+            className="text-gray-400 hover:text-terrific-pink transition-colors text-sm shrink-0"
             aria-label="Edit task"
           >
             ✎

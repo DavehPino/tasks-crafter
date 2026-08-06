@@ -1,23 +1,24 @@
 @import "tailwindcss";
 
-:root {
-  --terrific-orange: #FF9A56;
-  --terrific-pink: #FF6B9D;
-  --terrific-light-bg: #FFF9F7;
+@theme {
+  --color-terrific-orange: #FF9A56;
+  --color-terrific-pink: #FF6B9D;
+  --color-terrific-light: #FFF9F7;
+  --color-terrific-light-pink: #FFF0F5;
 }
 
 body {
-  @apply bg-gradient-to-br from-[#FFF9F7] to-[#FFF0F5];
+  @apply bg-gradient-to-br from-terrific-light to-terrific-light-pink;
 }
 
 .gradient-terrific {
-  @apply bg-gradient-to-r from-[#FF9A56] to-[#FF6B9D];
+  @apply bg-gradient-to-r from-terrific-orange to-terrific-pink;
 }
 
 .gradient-terrific-text {
-  @apply bg-gradient-to-r from-[#FF9A56] to-[#FF6B9D] bg-clip-text text-transparent;
+  @apply bg-gradient-to-r from-terrific-orange to-terrific-pink bg-clip-text text-transparent;
 }
 
 .focus-terrific {
-  @apply focus:outline-none focus:ring-2 focus:ring-[#FF9A56] focus:ring-offset-2;
+  @apply focus:outline-none focus:ring-2 focus:ring-terrific-orange focus:ring-offset-2;
 }

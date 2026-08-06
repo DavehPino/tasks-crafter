@@ -1,63 +1,77 @@
-import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchTasks, createTask, updateTask, completeTask, deleteTask } from './api/tasks'
-import { TaskCreator } from './components/TaskCreator'
-import { TaskList } from './components/TaskList'
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  fetchTasks,
+  createTask,
+  updateTask,
+  completeTask,
+  deleteTask,
+} from "./api/tasks";
+import { TaskCreator } from "./components/TaskCreator";
+import { TaskList } from "./components/TaskList";
 
 export default function App() {
-  const queryClient = useQueryClient()
-  const [selected, setSelected] = useState<Set<string>>(new Set())
-  const [page, setPage] = useState(1)
+  const queryClient = useQueryClient();
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [page, setPage] = useState(1);
 
-  const { data: response, isLoading, isError } = useQuery({
-    queryKey: ['tasks', page],
+  const {
+    data: response,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["tasks", page],
     queryFn: () => fetchTasks(page),
-  })
+  });
 
-  const tasks = response?.tasks ?? []
-  const pagination = response?.pagination
+  const tasks = response?.tasks ?? [];
+  const pagination = response?.pagination;
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ['tasks'] })
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: ["tasks"] });
 
   const createMutation = useMutation({
     mutationFn: (title: string) => createTask({ title }),
     onSuccess: invalidate,
-  })
+  });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, title }: { id: string; title: string }) => updateTask(id, { title }),
+    mutationFn: ({ id, title }: { id: string; title: string }) =>
+      updateTask(id, { title }),
     onSuccess: invalidate,
-  })
+  });
 
   const completeMutation = useMutation({
     mutationFn: (id: string) => completeTask(id),
     onSuccess: invalidate,
-  })
+  });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteTask(id),
     onSuccess: invalidate,
-  })
+  });
 
   const handleToggleSelect = (id: string) => {
     setSelected((prev) => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
-  }
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
 
   const handleDeleteSelected = async () => {
-    await Promise.all([...selected].map((id) => deleteTask(id)))
-    setSelected(new Set())
-    invalidate()
-  }
+    await Promise.all([...selected].map((id) => deleteTask(id)));
+    setSelected(new Set());
+    invalidate();
+  };
 
   return (
     <div className="min-h-screen flex items-start justify-center pt-16 px-4">
-      <div className="w-full max-w-lg bg-white rounded-xl shadow-sm border-2 border-transparent bg-gradient-to-br from-white to-white p-6 relative overflow-hidden before:absolute before:inset-0 before:rounded-[10px] before:p-[2px] before:bg-gradient-to-r before:from-[#FF9A56] before:to-[#FF6B9D] before:-z-10">
+      <div className="w-full max-w-lg bg-white rounded-xl shadow-sm border-2 border-transparent bg-linear-to-br from-white to-white p-6 relative overflow-hidden before:absolute before:inset-0 before:rounded-[10px] before:p-0.5 before:bg-linear-to-r before:from-terrific-orange before:to-terrific-pink before:-z-10">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold gradient-terrific-text">Session Tasks</h1>
+          <h1 className="text-2xl font-bold gradient-terrific-text">
+            Session Tasks
+          </h1>
           {selected.size > 0 && (
             <button
               onClick={handleDeleteSelected}
@@ -88,21 +102,23 @@ export default function App() {
 
         <div className="mt-6 flex items-center justify-between text-xs">
           <p className="text-gray-400">
-            {pagination ? `${pagination.page} / ${pagination.totalPages}` : '—'}
+            {pagination ? `${pagination.page} / ${pagination.totalPages}` : "—"}
           </p>
           {pagination && pagination.totalPages > 1 && (
             <div className="flex gap-2">
               <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-3 py-1 border border-gray-300 rounded text-xs hover:border-[#FF9A56] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-1 border border-gray-300 rounded text-xs hover:border-terrific-orange disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 ← Prev
               </button>
               <button
-                onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
+                onClick={() =>
+                  setPage((p) => Math.min(pagination.totalPages, p + 1))
+                }
                 disabled={page === pagination.totalPages}
-                className="px-3 py-1 border border-gray-300 rounded text-xs hover:border-[#FF9A56] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-1 border border-gray-300 rounded text-xs hover:border-terrific-orange disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Next →
               </button>
@@ -110,11 +126,12 @@ export default function App() {
           )}
           {tasks.length > 0 && (
             <p className="text-gray-400">
-              {tasks.filter((t) => t.status === 'completed').length} / {tasks.length} on page
+              {tasks.filter((t) => t.status === "completed").length} /{" "}
+              {tasks.length} on page
             </p>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }
