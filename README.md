@@ -211,6 +211,26 @@ tasks-crafter/
 
 ---
 
+## 🚀 Future Improvements
+
+If this project were to evolve beyond a POC, these upgrades would be the natural next steps:
+
+### UI Layer
+- **Component library:** Replace raw HTML/Tailwind with a modern library like [shadcn/ui](https://ui.shadcn.com/) or [Radix Primitives](https://www.radix-ui.com/) for accessible, composable components out of the box.
+- **Form handling:** Integrate [React Hook Form](https://react-hook-form.com/) + Zod resolver for type-safe form validation, better UX (field-level errors, dirty states), and less boilerplate.
+
+### React Patterns
+- **Suspense:** Wrap async data fetching in `<Suspense>` boundaries for granular loading states instead of a single `isLoading` flag.
+- **Error Boundaries:** Add `<ErrorBoundary>` components to gracefully handle rendering errors and API failures without crashing the entire app.
+- **Server Components / Server Actions:** If migrated to Next.js, leverage React Server Components to reduce client-side JavaScript and simplify data fetching.
+
+### Architecture
+- **Database:** Replace in-memory Map with PostgreSQL (Prisma) or SQLite (Drizzle) for real persistence.
+- **Auth:** Add JWT or session-based auth for multi-user support.
+- **API improvements:** Pagination cursor-based, filtering by status, batch endpoints.
+
+---
+
 ## 📝 Assumptions
 
 1. **Single operator:** Tool is used by one internal operator at a time; no multi-user sync required.
