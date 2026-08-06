@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchTasks,
@@ -26,6 +26,12 @@ export default function App() {
 
   const tasks = response?.tasks ?? [];
   const pagination = response?.pagination;
+
+  useEffect(() => {
+    if (pagination && page > pagination.totalPages && pagination.totalPages > 0) {
+      setPage(pagination.totalPages);
+    }
+  }, [pagination, page]);
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: ["tasks"] });
