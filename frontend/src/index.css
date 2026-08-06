@@ -1,1 +1,23 @@
 @import "tailwindcss";
+
+:root {
+  --terrific-orange: #FF9A56;
+  --terrific-pink: #FF6B9D;
+  --terrific-light-bg: #FFF9F7;
+}
+
+body {
+  @apply bg-gradient-to-br from-[#FFF9F7] to-[#FFF0F5];
+}
+
+.gradient-terrific {
+  @apply bg-gradient-to-r from-[#FF9A56] to-[#FF6B9D];
+}
+
+.gradient-terrific-text {
+  @apply bg-gradient-to-r from-[#FF9A56] to-[#FF6B9D] bg-clip-text text-transparent;
+}
+
+.focus-terrific {
+  @apply focus:outline-none focus:ring-2 focus:ring-[#FF9A56] focus:ring-offset-2;
+}

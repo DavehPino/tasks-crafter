@@ -32,7 +32,7 @@ export function TaskCreator({ onAdd, isLoading }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <div>
-        <label htmlFor="template" className="block text-xs font-medium text-gray-700 mb-1.5">
+        <label htmlFor="template" className="block text-xs font-semibold gradient-terrific-text mb-1.5">
           Select template
         </label>
         <select
@@ -40,7 +40,7 @@ export function TaskCreator({ onAdd, isLoading }: Props) {
           value={selectedTemplateId}
           onChange={(e) => handleTemplateChange(e.target.value)}
           disabled={isLoading}
-          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 bg-white"
+          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus-terrific disabled:opacity-50 bg-white"
         >
           {TASK_TEMPLATES.map((template) => (
             <option key={template.id} value={template.id}>
@@ -54,7 +54,7 @@ export function TaskCreator({ onAdd, isLoading }: Props) {
       </div>
 
       <div>
-        <label htmlFor="title" className="block text-xs font-medium text-gray-700 mb-1.5">
+        <label htmlFor="title" className="block text-xs font-semibold gradient-terrific-text mb-1.5">
           Task title
         </label>
         <input
@@ -64,14 +64,14 @@ export function TaskCreator({ onAdd, isLoading }: Props) {
           onChange={(e) => setCustomTitle(e.target.value)}
           placeholder="Customize the task title..."
           disabled={isLoading}
-          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+          className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus-terrific disabled:opacity-50"
         />
       </div>
 
       <button
         type="submit"
         disabled={isLoading || !customTitle.trim()}
-        className="w-full bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="w-full gradient-terrific text-white px-4 py-2 rounded text-sm font-medium hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
       >
         {isLoading ? 'Adding...' : 'Add Task'}
       </button>

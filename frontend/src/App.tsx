@@ -50,10 +50,10 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-start justify-center pt-16 px-4">
-      <div className="w-full max-w-lg bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div className="min-h-screen flex items-start justify-center pt-16 px-4">
+      <div className="w-full max-w-lg bg-white rounded-xl shadow-sm border-2 border-transparent bg-gradient-to-br from-white to-white p-6 relative overflow-hidden before:absolute before:inset-0 before:rounded-[10px] before:p-[2px] before:bg-gradient-to-r before:from-[#FF9A56] before:to-[#FF6B9D] before:-z-10">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-xl font-semibold text-gray-900">Session Tasks</h1>
+          <h1 className="text-2xl font-bold gradient-terrific-text">Session Tasks</h1>
           {selected.size > 0 && (
             <button
               onClick={handleDeleteSelected}
