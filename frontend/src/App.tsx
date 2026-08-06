@@ -48,7 +48,14 @@ export default function App() {
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteTask(id),
-    onSuccess: invalidate,
+    onSuccess: (_data, id) => {
+      setSelected((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      invalidate();
+    },
   });
 
   const handleToggleSelect = (id: string) => {
