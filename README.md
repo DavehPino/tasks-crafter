@@ -66,6 +66,22 @@ npm run dev:frontend     # Frontend only
 
 ---
 
+## 🧪 Tests
+
+66 tests across backend and frontend, all passing.
+
+| Suite | Tests | Coverage |
+|-------|-------|----------|
+| Backend (Jest) | 40 | Store, schemas, helpers, controllers |
+| Frontend (Jest + RTL) | 26 | Schemas, TaskCreator, TaskItem, TaskList |
+
+```bash
+npm test              # Run all tests (backend + frontend)
+npm run test:watch    # Watch mode for both
+```
+
+---
+
 ## 📡 API Reference
 
 ### Endpoints
