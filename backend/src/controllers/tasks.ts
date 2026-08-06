@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import * as store from '../store/tasks';
-import type { CreateTaskDTO, UpdateTaskDTO } from '../schemas/task';
+import { parseBody } from '../helpers/parseBody';
+import { createTaskSchema, updateTaskSchema, CreateTaskDTO, UpdateTaskDTO } from '../schemas/task';
 
 export const getAllTasks = (_req: Request, res: Response): void => {
   res.json(store.getAll());
@@ -15,13 +16,17 @@ export const getTaskById = (req: Request<{ id: string }>, res: Response): void =
   res.json(task);
 };
 
-export const createTask = (req: Request<{}, {}, CreateTaskDTO>, res: Response): void => {
-  const task = store.insert(req.body.title);
+export const createTask = (req: Request, res: Response): void => {
+  const body = parseBody<CreateTaskDTO>(req, res, createTaskSchema);
+  if (!body) return;
+  const task = store.insert(body.title);
   res.status(201).json(task);
 };
 
-export const updateTask = (req: Request<{ id: string }, {}, UpdateTaskDTO>, res: Response): void => {
-  const task = store.update(req.params.id, req.body.title);
+export const updateTask = (req: Request<{ id: string }>, res: Response): void => {
+  const body = parseBody<UpdateTaskDTO>(req, res, updateTaskSchema);
+  if (!body) return;
+  const task = store.update(req.params.id, body.title);
   if (!task) {
     res.status(404).json({ message: 'Task not found' });
     return;
