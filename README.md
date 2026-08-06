@@ -174,8 +174,7 @@ tasks-crafter/
 │   │   ├── models/                # Task type definitions
 │   │   ├── schemas/               # Zod schemas + inferred DTO types
 │   │   ├── store/                 # In-memory task store (Map)
-│   │   ├── helpers/               # parseBody validation helper
-│   │   └── middlewares/           # (unused validate middleware)
+│   │   └── helpers/               # parseBody validation helper
 │   ├── package.json
 │   └── tsconfig.json
 │
