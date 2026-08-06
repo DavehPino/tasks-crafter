@@ -8,6 +8,11 @@ dist/
 backend/dist/
 frontend/dist/
 
+# Test coverage
+coverage/
+backend/coverage/
+frontend/coverage/
+
 # Environment files
 .env
 backend/.env
