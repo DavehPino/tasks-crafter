@@ -7,8 +7,8 @@ interface Props {
 }
 
 export function TaskCreator({ onAdd, isLoading }: Props) {
-  const [selectedTemplateId, setSelectedTemplateId] = useState(TASK_TEMPLATES[0].id)
-  const [customTitle, setCustomTitle] = useState(TASK_TEMPLATES[0].label)
+  const [selectedTemplateId, setSelectedTemplateId] = useState('')
+  const [customTitle, setCustomTitle] = useState('')
 
   const selectedTemplate = TASK_TEMPLATES.find((t) => t.id === selectedTemplateId)
 
@@ -25,8 +25,8 @@ export function TaskCreator({ onAdd, isLoading }: Props) {
     const trimmed = customTitle.trim()
     if (!trimmed) return
     onAdd(trimmed)
-    setSelectedTemplateId(TASK_TEMPLATES[0].id)
-    setCustomTitle(TASK_TEMPLATES[0].label)
+    setSelectedTemplateId('')
+    setCustomTitle('')
   }
 
   return (
@@ -42,6 +42,9 @@ export function TaskCreator({ onAdd, isLoading }: Props) {
           disabled={isLoading}
           className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus-terrific disabled:opacity-50 bg-white"
         >
+          <option value="" disabled>
+            Choose a task template...
+          </option>
           {TASK_TEMPLATES.map((template) => (
             <option key={template.id} value={template.id}>
               {template.label}
@@ -62,7 +65,7 @@ export function TaskCreator({ onAdd, isLoading }: Props) {
           type="text"
           value={customTitle}
           onChange={(e) => setCustomTitle(e.target.value)}
-          placeholder="Customize the task title..."
+          placeholder="Or type a custom task..."
           disabled={isLoading}
           className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus-terrific disabled:opacity-50"
         />
