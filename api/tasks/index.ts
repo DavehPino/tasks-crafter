@@ -1,7 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import * as store from '../store/tasks';
-import { parseBody } from '../helpers/parseBody';
-import { createTaskSchema, CreateTaskDTO } from '../schemas/task';
+import * as store from '../store/tasks.js';
+import { parseBody } from '../helpers/parseBody.js';
+import { createTaskSchema, CreateTaskDTO } from '../schemas/task.js';
 
 const getAllTasks = (req: VercelRequest, res: VercelResponse): void => {
   const allTasks = store.getAll();

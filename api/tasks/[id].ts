@@ -1,7 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import * as store from '../store/tasks';
-import { parseBody } from '../helpers/parseBody';
-import { updateTaskSchema, UpdateTaskDTO } from '../schemas/task';
+import * as store from '../store/tasks.js';
+import { parseBody } from '../helpers/parseBody.js';
+import { updateTaskSchema, UpdateTaskDTO } from '../schemas/task.js';
 
 const getTaskById = (req: VercelRequest, res: VercelResponse): void => {
   const id = req.query.id as string;
