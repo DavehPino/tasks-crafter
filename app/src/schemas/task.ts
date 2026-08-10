@@ -4,6 +4,8 @@ export const taskSchema = z.object({
   id: z.string(),
   title: z.string(),
   status: z.enum(['pending', 'completed']),
+  productId: z.number().optional(),
+  category: z.string().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });

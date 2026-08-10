@@ -12,9 +12,10 @@ interface Props {
   onComplete: (id: string) => void
   onUpdate: (id: string, title: string) => void
   onDelete: (id: string) => void
+  showProductInfo?: boolean
 }
 
-export function TaskList({ tasks, isLoading, isError, selected, allSelected, onToggleSelect, onToggleAll, onComplete, onUpdate, onDelete }: Props) {
+export function TaskList({ tasks, isLoading, isError, selected, allSelected, onToggleSelect, onToggleAll, onComplete, onUpdate, onDelete, showProductInfo = false }: Props) {
   if (isLoading) {
     return <p className="text-sm text-gray-400 text-center py-6">Loading tasks...</p>
   }
@@ -38,6 +39,15 @@ export function TaskList({ tasks, isLoading, isError, selected, allSelected, onT
         />
         <span className="text-xs text-gray-500">Select all</span>
       </div>
+      {showProductInfo && (
+        <div className="flex items-center gap-3 py-2 border-b border-gray-200 text-xs text-gray-500 px-2">
+          <div className="w-4 shrink-0" />
+          <div className="flex-1">Task</div>
+          <div className="w-20">Product</div>
+          <div className="w-16">Status</div>
+          <div className="w-8" />
+        </div>
+      )}
       <ul className="divide-y divide-gray-100">
         {tasks.map((task) => (
           <TaskItem
@@ -48,6 +58,7 @@ export function TaskList({ tasks, isLoading, isError, selected, allSelected, onT
             onComplete={onComplete}
             onUpdate={onUpdate}
             onDelete={onDelete}
+            showProductInfo={showProductInfo}
           />
         ))}
       </ul>

@@ -1,16 +1,96 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 @theme {
+  /* Terrific Palette */
   --color-terrific-orange: #FF9A56;
   --color-terrific-pink: #FF6B9D;
   --color-terrific-light: #FFF9F7;
   --color-terrific-light-pink: #FFF0F5;
+
+  /* shadcn/ui Semantic Tokens - Light Mode */
+  --color-background: #FFF9F7;
+  --color-foreground: #0f172a;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #0f172a;
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #0f172a;
+  --color-primary: #FF9A56;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #FFF0F5;
+  --color-secondary-foreground: #FF6B9D;
+  --color-muted: #F1F5F9;
+  --color-muted-foreground: #64748b;
+  --color-accent: #FF6B9D;
+  --color-accent-foreground: #FFFFFF;
+  --color-destructive: #EF4444;
+  --color-destructive-foreground: #FFFFFF;
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-input: rgba(0, 0, 0, 0.06);
+  --color-ring: #FF9A56;
+
+  /* Status Colors */
+  --color-success: #10B981;
+  --color-success-foreground: #FFFFFF;
+  --color-warning: #F59E0B;
+  --color-warning-foreground: #FFFFFF;
+
+  /* Radius */
+  --radius: 0.5rem;
+
+  /* Animations */
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
 }
 
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+/* Dark Mode Theme */
+.dark {
+  --color-background: #0f172a;
+  --color-foreground: #f8fafc;
+  --color-card: #1e293b;
+  --color-card-foreground: #f8fafc;
+  --color-popover: #1e293b;
+  --color-popover-foreground: #f8fafc;
+  --color-primary: #FF9A56;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #1e293b;
+  --color-secondary-foreground: #FF6B9D;
+  --color-muted: #1e293b;
+  --color-muted-foreground: #94a3b8;
+  --color-accent: #FF6B9D;
+  --color-accent-foreground: #FFFFFF;
+  --color-destructive: #DC2626;
+  --color-destructive-foreground: #FFFFFF;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-input: rgba(255, 255, 255, 0.06);
+  --color-ring: #FF9A56;
+}
+
+/* Base styles */
 body {
-  @apply bg-gradient-to-br from-terrific-light to-terrific-light-pink;
+  @apply bg-background text-foreground antialiased;
+  font-feature-settings: "rlig" 1, "calt" 1;
 }
 
+/* Gradient utilities */
 .gradient-terrific {
   @apply bg-gradient-to-r from-terrific-orange to-terrific-pink;
 }
@@ -19,6 +99,12 @@ body {
   @apply bg-gradient-to-r from-terrific-orange to-terrific-pink bg-clip-text text-transparent;
 }
 
+/* Focus utilities */
 .focus-terrific {
   @apply focus:outline-none focus:ring-2 focus:ring-terrific-orange focus:ring-offset-2;
+}
+
+/* Smooth transitions for theme switching */
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }

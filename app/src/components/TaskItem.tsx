@@ -1,5 +1,11 @@
-import { useState } from "react";
-import type { Task } from "../schemas/task";
+import { useState } from "react"
+import { motion, AnimatePresence } from "motion/react"
+import { Check, Pencil, Trash2, X, Save } from "lucide-react"
+import type { Task } from "../schemas/task"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 
 interface Props {
   task: Task;
@@ -8,6 +14,7 @@ interface Props {
   onComplete: (id: string) => void;
   onUpdate: (id: string, title: string) => void;
   onDelete: (id: string) => void;
+  showProductInfo?: boolean;
 }
 
 export function TaskItem({
@@ -17,88 +24,154 @@ export function TaskItem({
   onComplete,
   onUpdate,
   onDelete,
+  showProductInfo = false,
 }: Props) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(task.title);
+  const [isEditing, setIsEditing] = useState(false)
+  const [editValue, setEditValue] = useState(task.title)
 
   const handleEditSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmed = editValue.trim();
+    e.preventDefault()
+    const trimmed = editValue.trim()
     if (!trimmed || trimmed === task.title) {
-      setIsEditing(false);
-      setEditValue(task.title);
-      return;
+      setIsEditing(false)
+      setEditValue(task.title)
+      return
     }
-    onUpdate(task.id, trimmed);
-    setIsEditing(false);
-  };
+    onUpdate(task.id, trimmed)
+    setIsEditing(false)
+  }
 
   const handleEditKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
-      setIsEditing(false);
-      setEditValue(task.title);
+      setIsEditing(false)
+      setEditValue(task.title)
     }
-  };
+  }
 
-  const isCompleted = task.status === "completed";
+  const isCompleted = task.status === "completed"
 
   return (
-    <li className="flex items-center gap-3 py-3 border-b border-gray-100 last:border-0">
-      <input
-        type="checkbox"
+    <motion.li
+      layout
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 10 }}
+      className={cn(
+        "flex items-center gap-3 p-3 rounded-lg border border-border/50 hover:bg-muted/50 transition-colors",
+        isCompleted && "bg-muted/30 opacity-70"
+      )}
+    >
+      {/* Checkbox */}
+      <Checkbox
         checked={isSelected}
-        onChange={() => onToggleSelect(task.id)}
-        className="w-4 h-4 accent-terrific-orange cursor-pointer shrink-0"
+        onCheckedChange={() => onToggleSelect(task.id)}
+        className="shrink-0"
       />
 
-      <div className="flex-1 min-w-0">
-        {isEditing ? (
-          <form onSubmit={handleEditSubmit}>
-            <input
-              type="text"
-              value={editValue}
-              onChange={(e) => setEditValue(e.target.value)}
-              onKeyDown={handleEditKeyDown}
-              onBlur={handleEditSubmit}
-              autoFocus
-              className="w-full border border-terrific-orange rounded px-2 py-0.5 text-sm focus-terrific"
-            />
-          </form>
-        ) : (
-          <span
-            className={`text-sm block truncate ${isCompleted ? "line-through text-gray-400" : "text-gray-800"}`}
-          >
-            {task.title}
-          </span>
-        )}
+      {/* Task Content */}
+      <div className={cn("flex-1 min-w-0", showProductInfo && "max-w-md")}>
+        <AnimatePresence mode="wait">
+          {isEditing ? (
+            <motion.form
+              key="editing"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onSubmit={handleEditSubmit}
+              className="flex items-center gap-2"
+            >
+              <input
+                type="text"
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                onKeyDown={handleEditKeyDown}
+                autoFocus
+                className="flex-1 h-8 px-2 text-sm border border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+              <Button type="submit" size="icon" variant="ghost" className="h-8 w-8">
+                <Save className="h-4 w-4 text-green-600" />
+              </Button>
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8"
+                onClick={() => {
+                  setIsEditing(false)
+                  setEditValue(task.title)
+                }}
+              >
+                <X className="h-4 w-4 text-muted-foreground" />
+              </Button>
+            </motion.form>
+          ) : (
+            <motion.span
+              key="display"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className={cn(
+                "text-sm block truncate",
+                isCompleted && "line-through text-muted-foreground"
+              )}
+            >
+              {task.title}
+            </motion.span>
+          )}
+        </AnimatePresence>
       </div>
 
-      {!isCompleted && !isEditing && (
-        <>
-          <button
-            onClick={() => onComplete(task.id)}
-            className="text-gray-400 hover:text-terrific-orange transition-colors text-sm shrink-0"
-            aria-label="Mark as completed"
-          >
-            ✓
-          </button>
-          <button
-            onClick={() => setIsEditing(true)}
-            className="text-gray-400 hover:text-terrific-pink transition-colors text-sm shrink-0"
-            aria-label="Edit task"
-          >
-            ✎
-          </button>
-        </>
+      {/* Product Info */}
+      {showProductInfo && task.productId && (
+        <Badge variant="outline" className="shrink-0 text-[10px]">
+          #{task.productId}
+        </Badge>
       )}
 
-      <button
-        onClick={() => onDelete(task.id)}
-        className="text-gray-400 hover:text-red-500 transition-colors text-sm shrink-0"
-        aria-label="Delete task"
-      >
-        ❌
-      </button>
-    </li>
-  );
+      {/* Status Badge */}
+      {showProductInfo && (
+        <Badge
+          variant={isCompleted ? "success" : "secondary"}
+          className="shrink-0"
+        >
+          {isCompleted ? "Done" : "Pending"}
+        </Badge>
+      )}
+
+      {/* Actions */}
+      {!isCompleted && !isEditing && (
+        <div className="flex items-center gap-1">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8"
+            onClick={() => onComplete(task.id)}
+          >
+            <Check className="h-4 w-4 text-green-600" />
+          </Button>
+          {!showProductInfo && (
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8"
+              onClick={() => setIsEditing(true)}
+            >
+              <Pencil className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Delete Button */}
+      {(!showProductInfo || isCompleted) && (
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-8 w-8"
+          onClick={() => onDelete(task.id)}
+        >
+          <Trash2 className="h-4 w-4 text-destructive/70 hover:text-destructive" />
+        </Button>
+      )}
+    </motion.li>
+  )
 }

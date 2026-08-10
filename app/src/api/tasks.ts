@@ -39,3 +39,24 @@ export const completeTask = (id: string): Promise<Task> =>
 
 export const deleteTask = (id: string): Promise<void> =>
   request<void>(`/tasks/${id}`, { method: 'DELETE' });
+
+export interface BulkCreateTasksRequest {
+  products: Array<{
+    id: number;
+    title: string;
+    category: string;
+  }>;
+}
+
+export interface BulkCreateTasksResponse {
+  tasks: Task[];
+  count: number;
+}
+
+export const bulkCreateTasksFromProducts = (
+  products: BulkCreateTasksRequest['products']
+): Promise<BulkCreateTasksResponse> =>
+  request<BulkCreateTasksResponse>('/tasks/bulk', {
+    method: 'POST',
+    body: JSON.stringify({ products }),
+  });
