@@ -60,3 +60,27 @@ export const bulkCreateTasksFromProducts = (
     method: 'POST',
     body: JSON.stringify({ products }),
   });
+
+export interface MandatoryTask {
+  id: string;
+  title: string;
+  description: string;
+  status: 'pending' | 'completed';
+  isMandatory: boolean;
+}
+
+export interface MandatoryStatusResponse {
+  mandatoryTasks: MandatoryTask[];
+  total: number;
+  completed: number;
+  allCompleted: boolean;
+  canGoLive: boolean;
+}
+
+export const initializeMandatoryTasks = (): Promise<{ tasks: MandatoryTask[]; alreadyInitialized: boolean }> =>
+  request<{ tasks: MandatoryTask[]; alreadyInitialized: boolean }>('/tasks/mandatory', {
+    method: 'POST',
+  });
+
+export const getMandatoryStatus = (): Promise<MandatoryStatusResponse> =>
+  request<MandatoryStatusResponse>('/tasks/mandatory');

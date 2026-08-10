@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchProducts } from '../api/products'
@@ -12,6 +12,7 @@ import { ProductSelector } from '../components/ProductSelector'
 import { SessionMetrics } from '../components/SessionMetrics'
 import { ProductTimeline } from '../components/ProductTimeline'
 import { TaskList } from '../components/TaskList'
+import { MandatoryTasksChecklist } from '../components/MandatoryTasksChecklist'
 import { Card } from '@/components/ui/card'
 import type { Product } from '../schemas/product'
 
@@ -20,6 +21,7 @@ export const SessionPrepPage = () => {
   const [selectedProductIds, setSelectedProductIds] = useState<number[]>([])
   const [expandedProductId, setExpandedProductId] = useState<number>()
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [mandatoryCompleted, setMandatoryCompleted] = useState(false)
 
   // Fetch products
   const { data: products = [], isLoading: productsLoading, isError: productsError } = useQuery({
@@ -130,6 +132,10 @@ export const SessionPrepPage = () => {
     })
   }
 
+  const handleMandatoryStatusChange = useCallback((canGoLive: boolean) => {
+    setMandatoryCompleted(canGoLive)
+  }, [])
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -154,8 +160,19 @@ export const SessionPrepPage = () => {
           readyProducts={productsWithAllTasksComplete.length}
           totalTasks={tasksForSelectedProducts.length}
           completedTasks={completedTasks}
+          mandatoryCompleted={mandatoryCompleted}
           isSessionReady={isSessionReady}
         />
+
+        {/* Mandatory Tasks Checklist */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.15, ease: [0.23, 1, 0.32, 1] }}
+          className="mb-6"
+        >
+          <MandatoryTasksChecklist onStatusChange={handleMandatoryStatusChange} />
+        </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Left: Product Selector */}

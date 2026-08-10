@@ -6,6 +6,7 @@ export interface Task {
   status: TaskStatus;
   productId?: number;
   category?: string;
+  isMandatory?: boolean;
   createdAt: string;
   updatedAt: string;
 }

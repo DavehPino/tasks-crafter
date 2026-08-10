@@ -1,16 +1,18 @@
-import { motion } from "motion/react"
-import { Radio, CheckCircle2, AlertCircle } from "lucide-react"
-import { Card } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { motion } from 'motion/react'
+import { Radio, CheckCircle2, AlertCircle, Shield } from 'lucide-react'
+import { Card } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 
 interface Props {
-  totalProducts: number;
-  readyProducts: number;
-  totalTasks: number;
-  completedTasks: number;
-  isSessionReady: boolean;
+  totalProducts: number
+  readyProducts: number
+  totalTasks: number
+  completedTasks: number
+  mandatoryCompleted: boolean
+  isSessionReady: boolean
 }
 
 export const SessionMetrics = ({
@@ -18,10 +20,14 @@ export const SessionMetrics = ({
   readyProducts,
   totalTasks,
   completedTasks,
+  mandatoryCompleted,
   isSessionReady,
 }: Props) => {
   const tasksPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
   const productsPercentage = totalProducts > 0 ? Math.round((readyProducts / totalProducts) * 100) : 0
+
+  // Session is ready only if mandatory tasks are completed AND products are ready
+  const canGoLive = mandatoryCompleted && isSessionReady
 
   return (
     <Card className="p-6 mb-8 border-border/50 bg-card">
@@ -119,24 +125,47 @@ export const SessionMetrics = ({
         </motion.div>
       </div>
 
+      {/* Mandatory Tasks Status */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="mt-6 pt-6 border-t border-border/50"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Shield className={cn(
+              "h-4 w-4",
+              mandatoryCompleted ? "text-green-500" : "text-yellow-500"
+            )} />
+            <span className="text-sm font-medium text-foreground">
+              Pre-Session Checklist
+            </span>
+          </div>
+          <Badge variant={mandatoryCompleted ? "success" : "warning"}>
+            {mandatoryCompleted ? "Complete" : "Pending"}
+          </Badge>
+        </div>
+      </motion.div>
+
       {/* Go Live Button */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="mt-8 pt-6 border-t border-border/50"
+        className="mt-6 pt-6 border-t border-border/50"
       >
         <Button
-          disabled={!isSessionReady}
+          disabled={!canGoLive}
           size="lg"
           className={cn(
             "w-full h-12 text-sm font-semibold transition-all",
-            isSessionReady
+            canGoLive
               ? "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg shadow-green-500/25"
               : "bg-muted text-muted-foreground cursor-not-allowed"
           )}
         >
-          {isSessionReady ? (
+          {canGoLive ? (
             <>
               <Radio className="h-4 w-4 mr-2 animate-pulse" />
               START LIVE SESSION

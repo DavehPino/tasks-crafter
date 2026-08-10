@@ -6,7 +6,7 @@ export const getAll = (): Task[] => Array.from(store.values());
 
 export const getById = (id: string): Task | undefined => store.get(id);
 
-export const insert = (title: string, productId?: number, category?: string): Task => {
+export const insert = (title: string, productId?: number, category?: string, isMandatory?: boolean): Task => {
   const now = new Date().toISOString();
   const task: Task = {
     id: crypto.randomUUID(),
@@ -14,6 +14,7 @@ export const insert = (title: string, productId?: number, category?: string): Ta
     status: 'pending',
     productId,
     category,
+    isMandatory,
     createdAt: now,
     updatedAt: now,
   };
@@ -23,6 +24,22 @@ export const insert = (title: string, productId?: number, category?: string): Ta
 
 export const insertMany = (tasks: Array<{ title: string; productId: number; category: string }>): Task[] => {
   return tasks.map(t => insert(t.title, t.productId, t.category));
+};
+
+export const insertMandatory = (tasks: Array<{ id: string; title: string; description: string }>): Task[] => {
+  return tasks.map(t => {
+    const now = new Date().toISOString();
+    const task: Task = {
+      id: t.id,
+      title: t.title,
+      status: 'pending',
+      isMandatory: true,
+      createdAt: now,
+      updatedAt: now,
+    };
+    store.set(task.id, task);
+    return task;
+  });
 };
 
 export const update = (id: string, title: string): Task | undefined => {
