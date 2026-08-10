@@ -2,18 +2,18 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY products-api/package*.json ./
 RUN npm ci
 
-COPY tsconfig.json ./
-COPY src/ ./src/
+COPY products-api/tsconfig.json ./
+COPY products-api/src/ ./src/
 RUN npx tsc
 
 FROM node:18-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY products-api/package*.json ./
 RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
