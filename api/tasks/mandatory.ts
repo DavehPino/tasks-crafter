@@ -1,5 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import * as store from '../store/tasks.js';
+import { setCorsHeaders, handleCors } from '../helpers/cors.js';
 
 const MANDATORY_TASKS = [
   {
@@ -54,20 +55,8 @@ const getMandatoryStatus = (req: VercelRequest, res: VercelResponse): void => {
 };
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
-
-  // Handle preflight
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
+  setCorsHeaders(req, res);
+  if (handleCors(req, res)) return;
 
   if (req.method === 'POST') {
     initializeMandatoryTasks(req, res);

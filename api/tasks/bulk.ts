@@ -2,6 +2,7 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import * as store from '../store/tasks.js';
 import { parseBody } from '../helpers/parseBody.js';
 import { bulkCreateTasksSchema, BulkCreateTasksDTO } from '../schemas/task.js';
+import { setCorsHeaders, handleCors } from '../helpers/cors.js';
 
 // Auto-generate prep tasks for each product
 const generateTasksForProduct = (productId: number, productTitle: string, category: string) => {
@@ -42,20 +43,8 @@ const bulkCreateTasks = (req: VercelRequest, res: VercelResponse): void => {
 };
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
-
-  // Handle preflight
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
-  }
+  setCorsHeaders(req, res);
+  if (handleCors(req, res)) return;
 
   if (req.method === 'POST') {
     bulkCreateTasks(req, res);
