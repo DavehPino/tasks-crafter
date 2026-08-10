@@ -16,7 +16,11 @@ import { MandatoryTasksChecklist } from '../components/MandatoryTasksChecklist'
 import { Card } from '@/components/ui/card'
 import type { Product } from '../schemas/product'
 
-export const SessionPrepPage = () => {
+interface Props {
+  onMandatoryStatusChange?: (canGoLive: boolean) => void
+}
+
+export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
   const queryClient = useQueryClient()
   const [selectedProductIds, setSelectedProductIds] = useState<number[]>([])
   const [expandedProductId, setExpandedProductId] = useState<number>()
@@ -134,7 +138,8 @@ export const SessionPrepPage = () => {
 
   const handleMandatoryStatusChange = useCallback((canGoLive: boolean) => {
     setMandatoryCompleted(canGoLive)
-  }, [])
+    onMandatoryStatusChange?.(canGoLive)
+  }, [onMandatoryStatusChange])
 
   return (
     <div className="min-h-screen bg-background">

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react"
+import { lazy, Suspense, useState, useCallback } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   fetchTasks,
@@ -11,7 +11,8 @@ import { TaskCreator } from "./components/TaskCreator"
 import { TaskList } from "./components/TaskList"
 import { PageSkeleton } from "./components/skeletons/PageSkeleton"
 import { Button } from "@/components/ui/button"
-import { Moon, Sun } from "lucide-react"
+import { LiveShoppingDialog } from "./components/LiveShoppingDialog"
+import { Moon, Sun, Radio } from "lucide-react"
 
 // Lazy load pages for code splitting
 const ProductsPage = lazy(() => import("./pages/ProductsPage").then(m => ({ default: m.ProductsPage })))
@@ -22,11 +23,17 @@ type Page = "tasks" | "products" | "session"
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>("session")
   const [isDark, setIsDark] = useState(false)
+  const [isLiveDialogOpen, setIsLiveDialogOpen] = useState(false)
+  const [canGoLive, setCanGoLive] = useState(false)
 
   const toggleTheme = () => {
     setIsDark(!isDark)
     document.documentElement.classList.toggle("dark")
   }
+
+  const handleMandatoryStatusChange = useCallback((status: boolean) => {
+    setCanGoLive(status)
+  }, [])
 
   return (
     <div className="min-h-screen bg-background">
@@ -64,25 +71,43 @@ export default function App() {
             </div>
           </div>
 
-          {/* Theme Toggle */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-            className="h-9 w-9"
-          >
-            {isDark ? (
-              <Sun className="h-4 w-4 text-terrific-orange" />
-            ) : (
-              <Moon className="h-4 w-4 text-terrific-pink" />
-            )}
-          </Button>
+          <div className="flex items-center gap-2">
+            {/* Live Shopping Button */}
+            <Button
+              variant={canGoLive ? "default" : "outline"}
+              size="sm"
+              onClick={() => setIsLiveDialogOpen(true)}
+              className={canGoLive
+                ? "bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white shadow-md shadow-red-500/20"
+                : "border-yellow-300 text-yellow-700 dark:border-yellow-600 dark:text-yellow-400"
+              }
+            >
+              <Radio className={`h-4 w-4 mr-1.5 ${canGoLive ? "animate-pulse" : ""}`} />
+              <span className="hidden sm:inline">Simulate</span>
+            </Button>
+
+            {/* Theme Toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="h-9 w-9"
+            >
+              {isDark ? (
+                <Sun className="h-4 w-4 text-terrific-orange" />
+              ) : (
+                <Moon className="h-4 w-4 text-terrific-pink" />
+              )}
+            </Button>
+          </div>
         </div>
       </nav>
 
       <main className="max-w-full">
         <Suspense fallback={<PageSkeleton />}>
-          {currentPage === "session" && <SessionPrepPage />}
+          {currentPage === "session" && (
+            <SessionPrepPage onMandatoryStatusChange={handleMandatoryStatusChange} />
+          )}
           {currentPage === "tasks" && (
             <div className="max-w-6xl mx-auto px-4 py-6">
               <TasksView />
@@ -95,6 +120,13 @@ export default function App() {
           )}
         </Suspense>
       </main>
+
+      {/* Live Shopping Dialog */}
+      <LiveShoppingDialog
+        open={isLiveDialogOpen}
+        onOpenChange={setIsLiveDialogOpen}
+        canGoLive={canGoLive}
+      />
     </div>
   )
 }
