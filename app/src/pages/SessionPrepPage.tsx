@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchProducts } from '../api/products'
@@ -7,12 +7,12 @@ import {
   bulkCreateTasksFromProducts,
   completeTask,
   deleteTask,
+  initializeMandatoryTasks,
 } from '../api/tasks'
 import { ProductSelector } from '../components/ProductSelector'
 import { SessionMetrics } from '../components/SessionMetrics'
 import { ProductTimeline } from '../components/ProductTimeline'
 import { TaskList } from '../components/TaskList'
-import { MandatoryTasksChecklist } from '../components/MandatoryTasksChecklist'
 import { Card } from '@/components/ui/card'
 import type { Product } from '../schemas/product'
 
@@ -25,7 +25,6 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
   const [selectedProductIds, setSelectedProductIds] = useState<number[]>([])
   const [expandedProductId, setExpandedProductId] = useState<number>()
   const [selected, setSelected] = useState<Set<string>>(new Set())
-  const [mandatoryCompleted, setMandatoryCompleted] = useState(false)
 
   // Fetch products
   const { data: products = [], isLoading: productsLoading, isError: productsError } = useQuery({
@@ -40,6 +39,20 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
   })
 
   const tasks = response.tasks || []
+
+  // Initialize mandatory tasks on mount
+  useEffect(() => {
+    initializeMandatoryTasks().then(() => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+    })
+  }, [queryClient])
+
+  // Mandatory tasks are always included (fetched from API on mount via bulk endpoint)
+  const mandatoryTasks = useMemo(() => tasks.filter(t => t.isMandatory), [tasks])
+  const allMandatoryCompleted = useMemo(
+    () => mandatoryTasks.length > 0 && mandatoryTasks.every(t => t.status === 'completed'),
+    [mandatoryTasks]
+  )
 
   // Bulk create tasks mutation
   const bulkCreateMutation = useMutation({
@@ -84,7 +97,7 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
   )
 
   const tasksForSelectedProducts = useMemo(
-    () => tasks.filter(t => t.productId && selectedProductIds.includes(t.productId)),
+    () => tasks.filter(t => t.isMandatory || (t.productId && selectedProductIds.includes(t.productId))),
     [tasks, selectedProductIds]
   )
 
@@ -104,7 +117,8 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
   const isSessionReady =
     selectedProducts.length > 0 &&
     tasksForSelectedProducts.length > 0 &&
-    completedTasks === tasksForSelectedProducts.length
+    completedTasks === tasksForSelectedProducts.length &&
+    allMandatoryCompleted
 
   // Group tasks by product
   const productsWithTasks = useMemo(() => {
@@ -136,10 +150,10 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
     })
   }
 
-  const handleMandatoryStatusChange = useCallback((canGoLive: boolean) => {
-    setMandatoryCompleted(canGoLive)
-    onMandatoryStatusChange?.(canGoLive)
-  }, [onMandatoryStatusChange])
+  // Notify parent when mandatory status changes
+  useCallback(() => {
+    onMandatoryStatusChange?.(allMandatoryCompleted)
+  }, [allMandatoryCompleted, onMandatoryStatusChange])()
 
   return (
     <div className="min-h-screen bg-background">
@@ -165,19 +179,9 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
           readyProducts={productsWithAllTasksComplete.length}
           totalTasks={tasksForSelectedProducts.length}
           completedTasks={completedTasks}
-          mandatoryCompleted={mandatoryCompleted}
+          mandatoryCompleted={allMandatoryCompleted}
           isSessionReady={isSessionReady}
         />
-
-        {/* Mandatory Tasks Checklist */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.15, ease: [0.23, 1, 0.32, 1] }}
-          className="mb-6"
-        >
-          <MandatoryTasksChecklist onStatusChange={handleMandatoryStatusChange} />
-        </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Left: Product Selector */}
@@ -235,56 +239,54 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
 
         {/* Timeline and Tasks */}
         <AnimatePresence>
-          {selectedProducts.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.4, delay: 0.3 }}
-              className="mt-8 space-y-6"
-            >
-              {/* Product Timeline */}
-              {productsWithTasks.length > 0 && (
-                <Card className="p-6 border-border/50 bg-card">
-                  <ProductTimeline
-                    productsWithTasks={productsWithTasks}
-                    expandedProductId={expandedProductId}
-                    onToggleExpand={setExpandedProductId}
-                  />
-                </Card>
-              )}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+            className="mt-8 space-y-6"
+          >
+            {/* Product Timeline */}
+            {productsWithTasks.length > 0 && (
+              <Card className="p-6 border-border/50 bg-card">
+                <ProductTimeline
+                  productsWithTasks={productsWithTasks}
+                  expandedProductId={expandedProductId}
+                  onToggleExpand={setExpandedProductId}
+                />
+              </Card>
+            )}
 
-              {/* All Tasks List */}
-              {tasksForSelectedProducts.length > 0 && (
-                <Card className="p-6 border-border/50 bg-card">
-                  <div className="flex items-center justify-between border-b border-border/50 pb-4 mb-4">
-                    <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
-                      Preparation Tasks
-                    </h3>
-                    <span className="text-xs text-muted-foreground font-mono">
-                      {completedTasks}/{tasksForSelectedProducts.length}
-                    </span>
-                  </div>
-                  <TaskList
-                    tasks={tasksForSelectedProducts}
-                    isLoading={false}
-                    isError={false}
-                    selected={selected}
-                    allSelected={
-                      tasksForSelectedProducts.length > 0 &&
-                      tasksForSelectedProducts.every(t => selected.has(t.id))
-                    }
-                    onToggleSelect={handleToggleSelect}
-                    onToggleAll={handleToggleAll}
-                    onComplete={(id) => completeMutation.mutate(id)}
-                    onUpdate={() => {}}
-                    onDelete={(id) => deleteMutation.mutate(id)}
-                    showProductInfo
-                  />
-                </Card>
-              )}
-            </motion.div>
-          )}
+            {/* All Tasks List - always show if there are tasks */}
+            {tasksForSelectedProducts.length > 0 && (
+              <Card className="p-6 border-border/50 bg-card">
+                <div className="flex items-center justify-between border-b border-border/50 pb-4 mb-4">
+                  <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                    {selectedProducts.length > 0 ? 'Preparation Tasks' : 'Pre-Session Checklist'}
+                  </h3>
+                  <span className="text-xs text-muted-foreground font-mono">
+                    {completedTasks}/{tasksForSelectedProducts.length}
+                  </span>
+                </div>
+                <TaskList
+                  tasks={tasksForSelectedProducts}
+                  isLoading={false}
+                  isError={false}
+                  selected={selected}
+                  allSelected={
+                    tasksForSelectedProducts.length > 0 &&
+                    tasksForSelectedProducts.every(t => selected.has(t.id))
+                  }
+                  onToggleSelect={handleToggleSelect}
+                  onToggleAll={handleToggleAll}
+                  onComplete={(id) => completeMutation.mutate(id)}
+                  onUpdate={() => {}}
+                  onDelete={(id) => deleteMutation.mutate(id)}
+                  showProductInfo={selectedProducts.length > 0}
+                />
+              </Card>
+            )}
+          </motion.div>
         </AnimatePresence>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
-import { Check, Pencil, Trash2, X, Save } from "lucide-react"
+import { Check, Pencil, Trash2, X, Save, Shield } from "lucide-react"
 import type { Task } from "../schemas/task"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
@@ -49,6 +49,7 @@ export function TaskItem({
   }
 
   const isCompleted = task.status === "completed"
+  const isMandatory = task.isMandatory === true
 
   return (
     <motion.li
@@ -58,7 +59,8 @@ export function TaskItem({
       exit={{ opacity: 0, x: 10 }}
       className={cn(
         "flex items-center gap-3 p-3 rounded-lg border border-border/50 hover:bg-muted/50 transition-colors",
-        isCompleted && "bg-muted/30 opacity-70"
+        isCompleted && "bg-muted/30 opacity-70",
+        isMandatory && !isCompleted && "border-l-2 border-l-yellow-500"
       )}
     >
       {/* Checkbox */}
@@ -67,6 +69,14 @@ export function TaskItem({
         onCheckedChange={() => onToggleSelect(task.id)}
         className="shrink-0"
       />
+
+      {/* Mandatory Indicator */}
+      {isMandatory && (
+        <Shield className={cn(
+          "h-4 w-4 shrink-0",
+          isCompleted ? "text-green-500" : "text-yellow-500"
+        )} />
+      )}
 
       {/* Task Content */}
       <div className={cn("flex-1 min-w-0", showProductInfo && "max-w-md")}>
@@ -164,7 +174,7 @@ export function TaskItem({
       )}
 
       {/* Delete Button */}
-      {(!showProductInfo || isCompleted) && (
+      {!isMandatory && (!showProductInfo || isCompleted) && (
         <Button
           size="icon"
           variant="ghost"
