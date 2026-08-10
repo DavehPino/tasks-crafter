@@ -14,9 +14,10 @@ interface Props {
   onUpdate: (id: string, title: string) => void
   onDelete: (id: string) => void
   showProductInfo?: boolean
+  showCheckboxes?: boolean
 }
 
-export function TaskList({ tasks, isLoading, isError, selected, allSelected, onToggleSelect, onToggleAll, onComplete, onUpdate, onDelete, showProductInfo = false }: Props) {
+export function TaskList({ tasks, isLoading, isError, selected, allSelected, onToggleSelect, onToggleAll, onComplete, onUpdate, onDelete, showProductInfo = false, showCheckboxes = true }: Props) {
   if (isLoading) {
     return <p className="text-sm text-gray-400 text-center py-6">Loading tasks...</p>
   }
@@ -34,15 +35,17 @@ export function TaskList({ tasks, isLoading, isError, selected, allSelected, onT
 
   return (
     <>
-      <div className="flex items-center gap-3 py-2 border-b border-gray-200">
-        <input
-          type="checkbox"
-          checked={allSelected}
-          onChange={onToggleAll}
-          className="w-4 h-4 accent-terrific-orange cursor-pointer shrink-0"
-        />
-        <span className="text-xs text-gray-500">Select all</span>
-      </div>
+      {showCheckboxes && (
+        <div className="flex items-center gap-3 py-2 border-b border-gray-200">
+          <input
+            type="checkbox"
+            checked={allSelected}
+            onChange={onToggleAll}
+            className="w-4 h-4 accent-terrific-orange cursor-pointer shrink-0"
+          />
+          <span className="text-xs text-gray-500">Select all</span>
+        </div>
+      )}
 
       {/* Mandatory Tasks Section */}
       {mandatoryTasks.length > 0 && (
@@ -62,6 +65,7 @@ export function TaskList({ tasks, isLoading, isError, selected, allSelected, onT
                 onUpdate={onUpdate}
                 onDelete={onDelete}
                 showProductInfo={showProductInfo}
+                showCheckbox={false}
               />
             ))}
           </ul>
@@ -91,6 +95,7 @@ export function TaskList({ tasks, isLoading, isError, selected, allSelected, onT
                 onUpdate={onUpdate}
                 onDelete={onDelete}
                 showProductInfo={showProductInfo}
+                showCheckbox={showCheckboxes}
               />
             ))}
           </ul>

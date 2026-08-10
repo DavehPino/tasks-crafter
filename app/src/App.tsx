@@ -180,6 +180,8 @@ function TasksView() {
   })
 
   const handleToggleSelect = (id: string) => {
+    const task = tasks.find((t) => t.id === id)
+    if (task?.isMandatory) return
     setSelected((prev) => {
       const next = new Set(prev)
       next.has(id) ? next.delete(id) : next.add(id)
@@ -188,10 +190,11 @@ function TasksView() {
   }
 
   const handleToggleAll = () => {
+    const selectableTasks = tasks.filter((t) => !t.isMandatory)
     setSelected((prev) => {
-      const allSelected = tasks.every((t) => prev.has(t.id))
+      const allSelected = selectableTasks.every((t) => prev.has(t.id))
       if (allSelected) return new Set()
-      return new Set(tasks.map((t) => t.id))
+      return new Set(selectableTasks.map((t) => t.id))
     })
   }
 

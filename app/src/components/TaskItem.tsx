@@ -15,6 +15,7 @@ interface Props {
   onUpdate: (id: string, title: string) => void;
   onDelete: (id: string) => void;
   showProductInfo?: boolean;
+  showCheckbox?: boolean;
 }
 
 export function TaskItem({
@@ -25,6 +26,7 @@ export function TaskItem({
   onUpdate,
   onDelete,
   showProductInfo = false,
+  showCheckbox = true,
 }: Props) {
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(task.title)
@@ -64,11 +66,13 @@ export function TaskItem({
       )}
     >
       {/* Checkbox */}
-      <Checkbox
-        checked={isSelected}
-        onCheckedChange={() => onToggleSelect(task.id)}
-        className="shrink-0"
-      />
+      {showCheckbox && (
+        <Checkbox
+          checked={isSelected}
+          onCheckedChange={() => onToggleSelect(task.id)}
+          className="shrink-0"
+        />
+      )}
 
       {/* Mandatory Indicator */}
       {isMandatory && (
@@ -159,7 +163,7 @@ export function TaskItem({
           >
             <Check className="h-4 w-4 text-green-600" />
           </Button>
-          {!showProductInfo && (
+          {!showProductInfo && !isMandatory && (
             <Button
               size="icon"
               variant="ghost"

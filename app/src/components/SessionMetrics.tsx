@@ -5,6 +5,8 @@ import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
+import { TaskList } from './TaskList'
+import type { Task } from '../schemas/task'
 
 interface Props {
   totalProducts: number
@@ -13,6 +15,15 @@ interface Props {
   completedTasks: number
   mandatoryCompleted: boolean
   isSessionReady: boolean
+  sessionTasks: Task[]
+  selectedTasks: Set<string>
+  allSelected: boolean
+  onToggleSelect: (id: string) => void
+  onToggleAll: () => void
+  onComplete: (id: string) => void
+  onUpdate: (id: string, title: string) => void
+  onDelete: (id: string) => void
+  showProductInfo: boolean
 }
 
 export const SessionMetrics = ({
@@ -22,6 +33,15 @@ export const SessionMetrics = ({
   completedTasks,
   mandatoryCompleted,
   isSessionReady,
+  sessionTasks,
+  selectedTasks,
+  allSelected,
+  onToggleSelect,
+  onToggleAll,
+  onComplete,
+  onUpdate,
+  onDelete,
+  showProductInfo,
 }: Props) => {
   const tasksPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
   const productsPercentage = totalProducts > 0 ? Math.round((readyProducts / totalProducts) * 100) : 0
@@ -146,6 +166,26 @@ export const SessionMetrics = ({
             {mandatoryCompleted ? "Complete" : "Pending"}
           </Badge>
         </div>
+
+        {/* Task List */}
+        {sessionTasks.length > 0 && (
+          <div className="mt-4">
+            <TaskList
+              tasks={sessionTasks}
+              isLoading={false}
+              isError={false}
+              selected={selectedTasks}
+              allSelected={allSelected}
+              onToggleSelect={onToggleSelect}
+              onToggleAll={onToggleAll}
+              onComplete={onComplete}
+              onUpdate={onUpdate}
+              onDelete={onDelete}
+              showProductInfo={showProductInfo}
+              showCheckboxes={false}
+            />
+          </div>
+        )}
       </motion.div>
 
       {/* Go Live Button */}

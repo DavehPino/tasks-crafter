@@ -11,7 +11,6 @@ import {
 import { ProductSelector } from '../components/ProductSelector'
 import { SessionMetrics } from '../components/SessionMetrics'
 import { ProductTimeline } from '../components/ProductTimeline'
-import { TaskList } from '../components/TaskList'
 import { Card } from '@/components/ui/card'
 import type { Product } from '../schemas/product'
 
@@ -88,8 +87,9 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
     [products, selectedProductIds]
   )
 
+  // Tasks for selected products (+ mandatory + manual tasks without productId)
   const tasksForSelectedProducts = useMemo(
-    () => tasks.filter(t => t.isMandatory || (t.productId && selectedProductIds.includes(t.productId))),
+    () => tasks.filter(t => t.isMandatory || !t.productId || (t.productId && selectedProductIds.includes(t.productId))),
     [tasks, selectedProductIds]
   )
 
@@ -101,7 +101,7 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
     })
   }, [tasks, selectedProductIds])
 
-  const completedTasks = useMemo(
+  const completedTasksForSelected = useMemo(
     () => tasksForSelectedProducts.filter(t => t.status === 'completed').length,
     [tasksForSelectedProducts]
   )
@@ -109,7 +109,7 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
   const isSessionReady =
     selectedProducts.length > 0 &&
     tasksForSelectedProducts.length > 0 &&
-    completedTasks === tasksForSelectedProducts.length &&
+    completedTasksForSelected === tasksForSelectedProducts.length &&
     allMandatoryCompleted
 
   // Group tasks by product
@@ -170,9 +170,21 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
           totalProducts={selectedProducts.length}
           readyProducts={productsWithAllTasksComplete.length}
           totalTasks={tasksForSelectedProducts.length}
-          completedTasks={completedTasks}
+          completedTasks={completedTasksForSelected}
           mandatoryCompleted={allMandatoryCompleted}
           isSessionReady={isSessionReady}
+          sessionTasks={tasksForSelectedProducts}
+          selectedTasks={selected}
+          allSelected={
+            tasksForSelectedProducts.length > 0 &&
+            tasksForSelectedProducts.every(t => selected.has(t.id))
+          }
+          onToggleSelect={handleToggleSelect}
+          onToggleAll={handleToggleAll}
+          onComplete={(id) => completeMutation.mutate(id)}
+          onUpdate={() => {}}
+          onDelete={(id) => deleteMutation.mutate(id)}
+          showProductInfo={selectedProducts.length > 0}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -220,8 +232,8 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
                 </div>
                 <div className="border-t border-border/50 pt-4">
                   <dt className="text-xs text-muted-foreground mb-1">Done</dt>
-                  <dd className={`text-3xl font-bold font-mono ${completedTasks === tasksForSelectedProducts.length && tasksForSelectedProducts.length > 0 ? 'text-green-500' : 'text-foreground'}`}>
-                    {completedTasks}/{tasksForSelectedProducts.length}
+                  <dd className={`text-3xl font-bold font-mono ${completedTasksForSelected === tasksForSelectedProducts.length && tasksForSelectedProducts.length > 0 ? 'text-green-500' : 'text-foreground'}`}>
+                    {completedTasksForSelected}/{tasksForSelectedProducts.length}
                   </dd>
                 </div>
               </dl>
@@ -245,36 +257,6 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
                   productsWithTasks={productsWithTasks}
                   expandedProductId={expandedProductId}
                   onToggleExpand={setExpandedProductId}
-                />
-              </Card>
-            )}
-
-            {/* All Tasks List - always show if there are tasks */}
-            {tasksForSelectedProducts.length > 0 && (
-              <Card className="p-6 border-border/50 bg-card">
-                <div className="flex items-center justify-between border-b border-border/50 pb-4 mb-4">
-                  <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
-                    {selectedProducts.length > 0 ? 'Preparation Tasks' : 'Pre-Session Checklist'}
-                  </h3>
-                  <span className="text-xs text-muted-foreground font-mono">
-                    {completedTasks}/{tasksForSelectedProducts.length}
-                  </span>
-                </div>
-                <TaskList
-                  tasks={tasksForSelectedProducts}
-                  isLoading={false}
-                  isError={false}
-                  selected={selected}
-                  allSelected={
-                    tasksForSelectedProducts.length > 0 &&
-                    tasksForSelectedProducts.every(t => selected.has(t.id))
-                  }
-                  onToggleSelect={handleToggleSelect}
-                  onToggleAll={handleToggleAll}
-                  onComplete={(id) => completeMutation.mutate(id)}
-                  onUpdate={() => {}}
-                  onDelete={(id) => deleteMutation.mutate(id)}
-                  showProductInfo={selectedProducts.length > 0}
                 />
               </Card>
             )}
