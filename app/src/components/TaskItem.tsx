@@ -145,6 +145,7 @@ export function TaskItem({
             variant="ghost"
             className="h-8 w-8"
             onClick={() => onComplete(task.id)}
+            aria-label="Mark as completed"
           >
             <Check className="h-4 w-4 text-green-600" />
           </Button>
@@ -154,6 +155,7 @@ export function TaskItem({
               variant="ghost"
               className="h-8 w-8"
               onClick={() => setIsEditing(true)}
+              aria-label="Edit task"
             >
               <Pencil className="h-4 w-4 text-muted-foreground" />
             </Button>
@@ -168,6 +170,7 @@ export function TaskItem({
           variant="ghost"
           className="h-8 w-8"
           onClick={() => onDelete(task.id)}
+          aria-label="Delete task"
         >
           <Trash2 className="h-4 w-4 text-destructive/70 hover:text-destructive" />
         </Button>

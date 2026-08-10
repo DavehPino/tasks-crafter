@@ -10,6 +10,7 @@ export default {
   },
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '^@/(.*)$': '<rootDir>/app/src/$1',
   },
   setupFilesAfterEnv: ['@testing-library/jest-dom'],
   collectCoverageFrom: [

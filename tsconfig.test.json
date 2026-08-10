@@ -12,7 +12,10 @@
     "isolatedModules": true,
     "moduleResolution": "node",
     "ignoreDeprecations": "6.0",
-    "types": ["jest", "@testing-library/jest-dom"]
+    "types": ["jest", "@testing-library/jest-dom"],
+    "paths": {
+      "@/*": ["./app/src/*"]
+    }
   },
   "include": ["app/src/**/*", "app/**/__tests__/**/*"]
 }
