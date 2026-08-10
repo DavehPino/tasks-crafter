@@ -1,0 +1,19 @@
+# Ignore backend directory (deprecated, moved to /api)
+backend/
+
+# Ignore git
+.git/
+.gitignore
+
+# Ignore test files
+**/__tests__/
+**/*.test.ts
+**/*.test.tsx
+*.test.ts
+*.test.tsx
+
+# Ignore common files
+README.md
+AGENTS.md
+.env.local
+.env.*.local

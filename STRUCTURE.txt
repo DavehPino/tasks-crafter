@@ -1,0 +1,107 @@
+tasks-crafter/
+│
+├── 📁 api/                                  ← Vercel Serverless API
+│   ├── 📁 tasks/
+│   │   ├── index.ts                        # GET /api/tasks, POST /api/tasks
+│   │   └── [id].ts                         # GET, PUT, PATCH, DELETE /api/tasks/:id
+│   ├── 📁 store/
+│   │   └── tasks.ts                        # In-memory task store (Map)
+│   ├── 📁 models/
+│   │   └── task.ts                         # TypeScript types
+│   ├── 📁 schemas/
+│   │   └── task.ts                         # Zod validation schemas
+│   ├── 📁 helpers/
+│   │   └── parseBody.ts                    # Vercel request body parsing
+│   └── health.ts                           # GET /api/health
+│
+├── 📁 app/                                ← Vite React App
+│   ├── 📁 src/
+│   │   ├── 📁 components/
+│   │   │   ├── TaskCreator.tsx
+│   │   │   ├── TaskList.tsx
+│   │   │   ├── TaskItem.tsx
+│   │   │   └── TaskInput.tsx
+│   │   ├── 📁 api/
+│   │   │   └── tasks.ts                    # Fetch client (uses /api)
+│   │   ├── 📁 schemas/
+│   │   │   └── task.ts                     # Zod types (shared)
+│   │   ├── 📁 constants/
+│   │   │   └── taskTemplates.ts            # Pre-built task templates
+│   │   ├── 📁 __tests__/                   # Test files (excluded from build)
+│   │   ├── App.tsx                         # Main component
+│   │   ├── main.tsx                        # React entry point
+│   │   └── index.css                       # Tailwind + theme
+│   ├── 📁 dist/                            # Build output (deployed to CDN)
+│   │   ├── index.html
+│   │   └── assets/
+│   ├── tsconfig.json
+│   ├── tsconfig.app.json
+│   ├── vite.config.ts
+│   ├── package.json
+│   ├── .env.example                        # Environment template
+│   └── .env.local                          # Development environment
+│
+├── 📁 node_modules/                        # Root dependencies
+│
+├── 🔧 Configuration Files
+│   ├── vercel.json                         # Vercel deployment config
+│   ├── .vercelignore                       # Files to exclude from deploy
+│   ├── package.json                        # Root monorepo config
+│   ├── package-lock.json
+│   └── .git/
+│
+├── 📚 Documentation
+│   ├── README.md                           # Main project overview
+│   ├── DEPLOYMENT.md                       # How to deploy
+│   ├── ARCHITECTURE.md                     # System design
+│   ├── MIGRATION_SUMMARY.md                # Migration details
+│   ├── AGENTS.md                           # Original requirements
+│   ├── STRUCTURE.txt                       # This file
+│   └── .gitignore
+│
+└── 🧪 Testing
+    └── test-structure.sh                   # Verification script
+
+═══════════════════════════════════════════════════════════════════
+
+DEPLOYMENT TARGETS:
+  Frontend: Vercel CDN (static files from app/dist)
+  API:      Vercel Serverless Functions (api/** files)
+  Both:     Single Vercel project at https://tasks-crafter.vercel.app
+
+KEY ENDPOINTS:
+  GET  /api/tasks                           List tasks (paginated)
+  POST /api/tasks                           Create task
+  GET  /api/tasks/:id                       Fetch task
+  PUT  /api/tasks/:id                       Update task
+  PATCH /api/tasks/:id/complete             Mark completed
+  DELETE /api/tasks/:id                     Delete task
+  GET  /api/health                          Health check
+
+DEVELOPMENT:
+  npm run dev:app                         Start Vite (port 5173)
+  npm run dev:backend                       Start Express (port 3001)
+  vercel dev                                Simulate production locally
+
+PRODUCTION:
+  git push origin main
+  → Vercel auto-deploys in ~2 minutes
+  → Available at https://tasks-crafter.vercel.app
+
+═══════════════════════════════════════════════════════════════════
+
+MIGRATED FROM:
+  ✓ Express backend (backend/src) → Vercel functions (api/)
+  ✓ Separate deployments → Single Vercel project
+  ✓ CORS configuration → Auto-handled by Vercel
+  ✓ Environment-based API URLs → Unified /api endpoint
+
+NOT CHANGED:
+  ✓ API contract (endpoints, request/response format)
+  ✓ Validation logic (Zod schemas identical)
+  ✓ App components (React code unchanged)
+  ✓ Task model and storage (in-memory Map)
+
+═══════════════════════════════════════════════════════════════════
+
+Last updated: August 10, 2026

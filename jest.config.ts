@@ -1,7 +1,7 @@
 /** @type {import('jest').Config} */
 export default {
   testEnvironment: 'jsdom',
-  roots: ['<rootDir>/src'],
+  roots: ['<rootDir>/app/src'],
   testMatch: ['**/__tests__/**/*.tsx', '**/*.test.tsx', '**/*.test.ts'],
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {
@@ -13,9 +13,9 @@ export default {
   },
   setupFilesAfterEnv: ['@testing-library/jest-dom'],
   collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/main.tsx',
-    '!src/vite-env.d.ts',
+    'app/src/**/*.{ts,tsx}',
+    '!app/src/**/*.d.ts',
+    '!app/src/main.tsx',
+    '!app/src/vite-env.d.ts',
   ],
 };

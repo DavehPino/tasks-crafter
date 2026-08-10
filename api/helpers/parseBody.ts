@@ -1,9 +1,9 @@
-import { Request, Response } from 'express';
+import { VercelRequest, VercelResponse } from '@vercel/node';
 import { ZodSchema } from 'zod';
 
 export const parseBody = <T>(
-  req: Request,
-  res: Response,
+  req: VercelRequest,
+  res: VercelResponse,
   schema: ZodSchema
 ): T | null => {
   const result = schema.safeParse(req.body);

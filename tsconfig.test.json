@@ -14,5 +14,5 @@
     "ignoreDeprecations": "6.0",
     "types": ["jest", "@testing-library/jest-dom"]
   },
-  "include": ["src/**/*", "**/__tests__/**/*"]
+  "include": ["app/src/**/*", "app/**/__tests__/**/*"]
 }

@@ -8,7 +8,7 @@ Do not commit and push unless is asked by the user.
 
 Internal task management tool for live commerce session preparation. Used by operators during session setup.
 
-**Key Technical Decision:** Using Express.js (backend) + React (frontend) with TypeScript.
+**Key Technical Decision:** Using Vercel serverless functions (API) + React (app) with TypeScript.
 
 ---
 
@@ -24,10 +24,10 @@ Internal task management tool for live commerce session preparation. Used by ope
 
 ### Technical
 
-- Backend: Node.js + Express + TypeScript
+- Backend: Node.js + Vercel Serverless Functions + TypeScript
 - Frontend: React + Vite + TypeScript
 - API-first design; all operations exposed via endpoints
-- Frontend consumes API (no direct DB access)
+- App consumes API (no direct DB access)
 - Validation: Zod (shared schemas)
 - Data fetching: TanStack Query
 - Styling: Tailwind CSS v4
@@ -77,20 +77,14 @@ Internal task management tool for live commerce session preparation. Used by ope
 
 ```
 tasks-crafter/
-├── backend/
+├── api/
+│   └── tasks/         # Serverless function handlers
+├── app/
 │   └── src/
-│       ├── controllers/   # Request handlers
-│       ├── routes/        # Express routers
-│       ├── models/        # Type definitions
-│       ├── schemas/       # Zod validation
-│       ├── store/         # In-memory Map
-│       └── helpers/       # parseBody utility
-└── frontend/
-    └── src/
-        ├── api/           # Fetch functions
-        ├── components/    # React components
-        ├── constants/     # Task templates
-        └── schemas/       # Zod + types
+│       ├── api/           # Fetch functions
+│       ├── components/    # React components
+│       ├── constants/     # Task templates
+│       └── schemas/       # Zod + types
 ```
 
 ---
