@@ -35,7 +35,7 @@ export const updateTask = (id: string, dto: UpdateTaskDTO): Promise<Task> =>
   request<Task>(`/tasks/${id}`, { method: 'PUT', body: JSON.stringify(dto) });
 
 export const completeTask = (id: string): Promise<Task> =>
-  request<Task>(`/tasks/${id}/complete`, { method: 'PATCH' });
+  request<Task>(`/tasks/${id}`, { method: 'PATCH' });
 
 export const deleteTask = (id: string): Promise<void> =>
   request<void>(`/tasks/${id}`, { method: 'DELETE' });
