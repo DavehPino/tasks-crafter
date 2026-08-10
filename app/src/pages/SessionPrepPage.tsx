@@ -42,9 +42,11 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
 
   // Initialize mandatory tasks on mount
   useEffect(() => {
-    initializeMandatoryTasks().then(() => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] })
-    })
+    initializeMandatoryTasks()
+      .then(() => queryClient.invalidateQueries({ queryKey: ['tasks'] }))
+      .catch(() => {
+        // Silently handle - tasks may already exist from previous session
+      })
   }, [queryClient])
 
   // Mandatory tasks are always included (fetched from API on mount via bulk endpoint)

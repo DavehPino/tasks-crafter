@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useCallback } from "react"
+import { lazy, Suspense, useState, useCallback, useEffect } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   fetchTasks,
@@ -6,6 +6,7 @@ import {
   updateTask,
   completeTask,
   deleteTask,
+  initializeMandatoryTasks,
 } from "./api/tasks"
 import { TaskCreator } from "./components/TaskCreator"
 import { TaskList } from "./components/TaskList"
@@ -135,6 +136,15 @@ function TasksView() {
   const queryClient = useQueryClient()
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [page, setPage] = useState(1)
+
+  // Initialize mandatory tasks on mount
+  useEffect(() => {
+    initializeMandatoryTasks()
+      .then(() => queryClient.invalidateQueries({ queryKey: ["tasks"] }))
+      .catch(() => {
+        // Silently handle - tasks may already exist from previous session
+      })
+  }, [queryClient])
 
   const {
     data: response,

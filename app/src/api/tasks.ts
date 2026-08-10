@@ -25,8 +25,8 @@ const request = async <T>(path: string, options?: RequestInit): Promise<T> => {
   return res.json();
 };
 
-export const fetchTasks = (page: number = 1): Promise<PaginatedResponse<Task>> =>
-  request<PaginatedResponse<Task>>(`/tasks?page=${page}&limit=5`);
+export const fetchTasks = (page: number = 1, limit: number = 100): Promise<PaginatedResponse<Task>> =>
+  request<PaginatedResponse<Task>>(`/tasks?page=${page}&limit=${limit}`);
 
 export const createTask = (dto: CreateTaskDTO): Promise<Task> =>
   request<Task>('/tasks', { method: 'POST', body: JSON.stringify(dto) });
