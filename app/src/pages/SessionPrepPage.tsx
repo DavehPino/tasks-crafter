@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchProducts } from '../api/products'
@@ -7,7 +7,6 @@ import {
   bulkCreateTasksFromProducts,
   completeTask,
   deleteTask,
-  initializeMandatoryTasks,
 } from '../api/tasks'
 import { ProductSelector } from '../components/ProductSelector'
 import { SessionMetrics } from '../components/SessionMetrics'
@@ -39,15 +38,6 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
   })
 
   const tasks = response.tasks || []
-
-  // Initialize mandatory tasks on mount
-  useEffect(() => {
-    initializeMandatoryTasks()
-      .then(() => queryClient.invalidateQueries({ queryKey: ['tasks'] }))
-      .catch(() => {
-        // Silently handle - tasks may already exist from previous session
-      })
-  }, [queryClient])
 
   // Mandatory tasks are always included (fetched from API on mount via bulk endpoint)
   const mandatoryTasks = useMemo(() => tasks.filter(t => t.isMandatory), [tasks])
