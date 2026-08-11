@@ -16,8 +16,6 @@ import {
   Phone,
   Radio,
   AlertTriangle,
-  Share2,
-  MessageSquare,
   Settings,
   Camera,
   Wifi,
@@ -327,22 +325,6 @@ export const LiveShoppingDialog = ({ open, onOpenChange, canGoLive, products }: 
                   ) : (
                     <Video className="h-5 w-5" />
                   )}
-                </Button>
-
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="h-12 w-12 rounded-full"
-                >
-                  <Share2 className="h-5 w-5" />
-                </Button>
-
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="h-12 w-12 rounded-full"
-                >
-                  <MessageSquare className="h-5 w-5" />
                 </Button>
 
                 <div className="w-px h-8 bg-border mx-2" />
