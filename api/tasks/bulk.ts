@@ -4,7 +4,6 @@ import { parseBody } from '../helpers/parseBody.js';
 import { bulkCreateTasksSchema, BulkCreateTasksDTO } from '../schemas/task.js';
 import { setCorsHeaders, handleCors } from '../helpers/cors.js';
 
-// Auto-generate prep tasks for each product
 const generateTasksForProduct = (productId: number, productTitle: string, category: string) => {
   const shortTitle = productTitle.length > 30 ? productTitle.substring(0, 30) + '...' : productTitle;
   return [
@@ -26,16 +25,15 @@ const generateTasksForProduct = (productId: number, productTitle: string, catego
   ];
 };
 
-const bulkCreateTasks = (req: VercelRequest, res: VercelResponse): void => {
+const bulkCreateTasks = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
   const body = parseBody<BulkCreateTasksDTO>(req, res, bulkCreateTasksSchema);
   if (!body) return;
 
-  // If products data is provided, use it. Otherwise, we just generate tasks with IDs.
   const tasks = body.products
     ? body.products.flatMap(p => generateTasksForProduct(p.id, p.title, p.category))
     : body.productIds.flatMap(id => generateTasksForProduct(id, `Product ${id}`, 'uncategorized'));
 
-  const created = store.insertMany(tasks);
+  const created = await store.insertMany(tasks);
   res.status(201).json({
     tasks: created,
     count: created.length,

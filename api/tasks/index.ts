@@ -4,7 +4,6 @@ import { parseBody } from '../helpers/parseBody.js';
 import { createTaskSchema, CreateTaskDTO } from '../schemas/task.js';
 import { setCorsHeaders, handleCors } from '../helpers/cors.js';
 
-// Define mandatory tasks that should always be included
 const MANDATORY_TASKS = [
   {
     id: 'mandatory-av-check',
@@ -23,17 +22,15 @@ const MANDATORY_TASKS = [
   },
 ];
 
-const getAllTasks = (req: VercelRequest, res: VercelResponse): void => {
-  // Ensure mandatory tasks exist in the store
-  const existingTasks = store.getAll();
+const getAllTasks = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
+  const existingTasks = await store.getAll();
   const mandatoryExists = MANDATORY_TASKS.some(t => existingTasks.some(et => et.id === t.id));
-  
+
   if (!mandatoryExists) {
-    // Create mandatory tasks if they don't exist
-    store.insertMandatory(MANDATORY_TASKS);
+    await store.insertMandatory(MANDATORY_TASKS);
   }
 
-  const allTasks = store.getAll();
+  const allTasks = await store.getAll();
   const page = Math.max(1, parseInt((req.query.page as string) || '1'));
   const limit = Math.max(1, Math.min(100, parseInt((req.query.limit as string) || '5')));
 
@@ -53,10 +50,10 @@ const getAllTasks = (req: VercelRequest, res: VercelResponse): void => {
   });
 };
 
-const createTask = (req: VercelRequest, res: VercelResponse): void => {
+const createTask = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
   const body = parseBody<CreateTaskDTO>(req, res, createTaskSchema);
   if (!body) return;
-  const task = store.insert(body.title);
+  const task = await store.insert(body.title);
   res.status(201).json(task);
 };
 

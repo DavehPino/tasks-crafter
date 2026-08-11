@@ -20,25 +20,22 @@ const MANDATORY_TASKS = [
   },
 ];
 
-const initializeMandatoryTasks = (req: VercelRequest, res: VercelResponse): void => {
-  // Check if mandatory tasks already exist
-  const existingTasks = store.getAll();
+const initializeMandatoryTasks = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
+  const existingTasks = await store.getAll();
   const mandatoryExists = MANDATORY_TASKS.some(t => existingTasks.some(et => et.id === t.id));
 
   if (mandatoryExists) {
-    // Return existing mandatory tasks
     const mandatoryTasks = existingTasks.filter(t => t.isMandatory);
     res.json({ tasks: mandatoryTasks, alreadyInitialized: true });
     return;
   }
 
-  // Create mandatory tasks
-  const created = store.insertMandatory(MANDATORY_TASKS);
+  const created = await store.insertMandatory(MANDATORY_TASKS);
   res.status(201).json({ tasks: created, alreadyInitialized: false });
 };
 
-const getMandatoryStatus = (req: VercelRequest, res: VercelResponse): void => {
-  const allTasks = store.getAll();
+const getMandatoryStatus = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
+  const allTasks = await store.getAll();
   const mandatoryTasks = allTasks.filter(t => t.isMandatory);
 
   const total = MANDATORY_TASKS.length;

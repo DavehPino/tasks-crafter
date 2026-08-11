@@ -4,9 +4,9 @@ import { parseBody } from '../../helpers/parseBody.js';
 import { updateTaskSchema, UpdateTaskDTO } from '../../schemas/task.js';
 import { setCorsHeaders, handleCors } from '../../helpers/cors.js';
 
-const getTaskById = (req: VercelRequest, res: VercelResponse): void => {
+const getTaskById = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
   const id = req.query.id as string;
-  const task = store.getById(id);
+  const task = await store.getById(id);
   if (!task) {
     res.status(404).json({ message: 'Task not found' });
     return;
@@ -14,11 +14,11 @@ const getTaskById = (req: VercelRequest, res: VercelResponse): void => {
   res.json(task);
 };
 
-const updateTask = (req: VercelRequest, res: VercelResponse): void => {
+const updateTask = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
   const id = req.query.id as string;
   const body = parseBody<UpdateTaskDTO>(req, res, updateTaskSchema);
   if (!body) return;
-  const task = store.update(id, body.title);
+  const task = await store.update(id, body.title);
   if (!task) {
     res.status(404).json({ message: 'Task not found' });
     return;
@@ -26,9 +26,9 @@ const updateTask = (req: VercelRequest, res: VercelResponse): void => {
   res.json(task);
 };
 
-const completeTask = (req: VercelRequest, res: VercelResponse): void => {
+const completeTask = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
   const id = req.query.id as string;
-  const task = store.complete(id);
+  const task = await store.complete(id);
   if (!task) {
     res.status(404).json({ message: 'Task not found' });
     return;
@@ -36,14 +36,14 @@ const completeTask = (req: VercelRequest, res: VercelResponse): void => {
   res.json(task);
 };
 
-const deleteTask = (req: VercelRequest, res: VercelResponse): void => {
+const deleteTask = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
   const id = req.query.id as string;
-  const deleted = store.remove(id);
+  const deleted = await store.remove(id);
   if (!deleted) {
     res.status(404).json({ message: 'Task not found' });
     return;
   }
-  res.status(204).send();
+  res.status(204).end();
 };
 
 export default function handler(req: VercelRequest, res: VercelResponse) {
