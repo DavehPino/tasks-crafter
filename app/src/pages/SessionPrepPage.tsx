@@ -86,13 +86,10 @@ export const SessionPrepPage = ({ onMandatoryStatusChange, onProductsSelected }:
     [products, confirmedProductIds]
   )
 
+  // Products ready = confirmed products (automatically ready when confirmed)
   const productsWithAllTasksComplete = useMemo(() => {
-    return confirmedProductIds.filter(productId => {
-      const productTasks = tasks.filter(t => t.productId === productId)
-      if (productTasks.length === 0) return false
-      return productTasks.every(t => t.status === 'completed')
-    })
-  }, [tasks, confirmedProductIds])
+    return confirmedProductIds
+  }, [confirmedProductIds])
 
   const completedTasksForSelected = useMemo(
     () => tasksForSelectedProducts.filter(t => t.status === 'completed').length,
