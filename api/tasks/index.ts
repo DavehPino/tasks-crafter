@@ -23,14 +23,20 @@ const MANDATORY_TASKS = [
 ];
 
 const getAllTasks = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
-  const existingTasks = await store.getAll();
+  const sessionId = req.headers['x-session-id'] as string;
+  if (!sessionId) {
+    res.status(400).json({ message: 'Missing X-Session-Id header' });
+    return;
+  }
+
+  const existingTasks = await store.getAll(sessionId);
   const mandatoryExists = existingTasks.some(t => t.isMandatory);
 
   if (!mandatoryExists) {
-    await store.insertMandatory(MANDATORY_TASKS);
+    await store.insertMandatory(sessionId, MANDATORY_TASKS);
   }
 
-  const allTasks = await store.getAll();
+  const allTasks = await store.getAll(sessionId);
   const page = Math.max(1, parseInt((req.query.page as string) || '1'));
   const limit = Math.max(1, Math.min(100, parseInt((req.query.limit as string) || '5')));
 
@@ -51,9 +57,15 @@ const getAllTasks = async (req: VercelRequest, res: VercelResponse): Promise<voi
 };
 
 const createTask = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
+  const sessionId = req.headers['x-session-id'] as string;
+  if (!sessionId) {
+    res.status(400).json({ message: 'Missing X-Session-Id header' });
+    return;
+  }
+
   const body = parseBody<CreateTaskDTO>(req, res, createTaskSchema);
   if (!body) return;
-  const task = await store.insert(body.title);
+  const task = await store.insert(sessionId, body.title);
   res.status(201).json(task);
 };
 

@@ -26,6 +26,12 @@ const generateTasksForProduct = (productId: number, productTitle: string, catego
 };
 
 const bulkCreateTasks = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
+  const sessionId = req.headers['x-session-id'] as string;
+  if (!sessionId) {
+    res.status(400).json({ message: 'Missing X-Session-Id header' });
+    return;
+  }
+
   const body = parseBody<BulkCreateTasksDTO>(req, res, bulkCreateTasksSchema);
   if (!body) return;
 
@@ -33,7 +39,7 @@ const bulkCreateTasks = async (req: VercelRequest, res: VercelResponse): Promise
     ? body.products.flatMap(p => generateTasksForProduct(p.id, p.title, p.category))
     : body.productIds.flatMap(id => generateTasksForProduct(id, `Product ${id}`, 'uncategorized'));
 
-  const created = await store.insertMany(tasks);
+  const created = await store.insertMany(sessionId, tasks);
   res.status(201).json({
     tasks: created,
     count: created.length,

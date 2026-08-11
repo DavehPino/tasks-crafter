@@ -1,21 +1,21 @@
 import { redis } from '../lib/redis.js';
 import type { Task } from '../models/task.js';
 
-const KEY = 'tasks';
+const getKey = (sessionId: string): string => `tasks:${sessionId}`;
 
-export const getAll = async (): Promise<Task[]> => {
-  const data = await redis.hgetall<Record<string, string>>(KEY);
+export const getAll = async (sessionId: string): Promise<Task[]> => {
+  const data = await redis.hgetall<Record<string, string>>(getKey(sessionId));
   if (!data || Object.keys(data).length === 0) return [];
   return Object.values(data).map((v) => JSON.parse(v) as Task);
 };
 
-export const getById = async (id: string): Promise<Task | undefined> => {
-  const raw = await redis.hget<string>(KEY, id);
+export const getById = async (sessionId: string, id: string): Promise<Task | undefined> => {
+  const raw = await redis.hget<string>(getKey(sessionId), id);
   if (!raw) return undefined;
   return JSON.parse(raw) as Task;
 };
 
-export const insert = async (title: string, productId?: number, category?: string, isMandatory?: boolean): Promise<Task> => {
+export const insert = async (sessionId: string, title: string, productId?: number, category?: string, isMandatory?: boolean): Promise<Task> => {
   const now = new Date().toISOString();
   const task: Task = {
     id: crypto.randomUUID(),
@@ -27,11 +27,11 @@ export const insert = async (title: string, productId?: number, category?: strin
     createdAt: now,
     updatedAt: now,
   };
-  await redis.hset(KEY, { [task.id]: JSON.stringify(task) });
+  await redis.hset(getKey(sessionId), { [task.id]: JSON.stringify(task) });
   return task;
 };
 
-export const insertMany = async (tasks: Array<{ title: string; productId: number; category: string }>): Promise<Task[]> => {
+export const insertMany = async (sessionId: string, tasks: Array<{ title: string; productId: number; category: string }>): Promise<Task[]> => {
   const entries: Record<string, string> = {};
   const result: Task[] = [];
 
@@ -50,11 +50,11 @@ export const insertMany = async (tasks: Array<{ title: string; productId: number
     result.push(task);
   }
 
-  await redis.hset(KEY, entries);
+  await redis.hset(getKey(sessionId), entries);
   return result;
 };
 
-export const insertMandatory = async (tasks: Array<{ prefix: string; title: string; description: string }>): Promise<Task[]> => {
+export const insertMandatory = async (sessionId: string, tasks: Array<{ prefix: string; title: string; description: string }>): Promise<Task[]> => {
   const entries: Record<string, string> = {};
   const result: Task[] = [];
 
@@ -73,29 +73,29 @@ export const insertMandatory = async (tasks: Array<{ prefix: string; title: stri
     result.push(task);
   }
 
-  await redis.hset(KEY, entries);
+  await redis.hset(getKey(sessionId), entries);
   return result;
 };
 
-export const update = async (id: string, title: string): Promise<Task | undefined> => {
-  const raw = await redis.hget<string>(KEY, id);
+export const update = async (sessionId: string, id: string, title: string): Promise<Task | undefined> => {
+  const raw = await redis.hget<string>(getKey(sessionId), id);
   if (!raw) return undefined;
   const task = JSON.parse(raw) as Task;
   const updated: Task = { ...task, title, updatedAt: new Date().toISOString() };
-  await redis.hset(KEY, { [id]: JSON.stringify(updated) });
+  await redis.hset(getKey(sessionId), { [id]: JSON.stringify(updated) });
   return updated;
 };
 
-export const complete = async (id: string): Promise<Task | undefined> => {
-  const raw = await redis.hget<string>(KEY, id);
+export const complete = async (sessionId: string, id: string): Promise<Task | undefined> => {
+  const raw = await redis.hget<string>(getKey(sessionId), id);
   if (!raw) return undefined;
   const task = JSON.parse(raw) as Task;
   const updated: Task = { ...task, status: 'completed', updatedAt: new Date().toISOString() };
-  await redis.hset(KEY, { [id]: JSON.stringify(updated) });
+  await redis.hset(getKey(sessionId), { [id]: JSON.stringify(updated) });
   return updated;
 };
 
-export const remove = async (id: string): Promise<boolean> => {
-  const result = await redis.hdel(KEY, id);
+export const remove = async (sessionId: string, id: string): Promise<boolean> => {
+  const result = await redis.hdel(getKey(sessionId), id);
   return result > 0;
 };

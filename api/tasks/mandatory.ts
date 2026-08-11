@@ -21,7 +21,13 @@ const MANDATORY_TASKS = [
 ];
 
 const initializeMandatoryTasks = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
-  const existingTasks = await store.getAll();
+  const sessionId = req.headers['x-session-id'] as string;
+  if (!sessionId) {
+    res.status(400).json({ message: 'Missing X-Session-Id header' });
+    return;
+  }
+
+  const existingTasks = await store.getAll(sessionId);
   const mandatoryExists = existingTasks.some(t => t.isMandatory);
 
   if (mandatoryExists) {
@@ -30,12 +36,18 @@ const initializeMandatoryTasks = async (req: VercelRequest, res: VercelResponse)
     return;
   }
 
-  const created = await store.insertMandatory(MANDATORY_TASKS);
+  const created = await store.insertMandatory(sessionId, MANDATORY_TASKS);
   res.status(201).json({ tasks: created, alreadyInitialized: false });
 };
 
 const getMandatoryStatus = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
-  const allTasks = await store.getAll();
+  const sessionId = req.headers['x-session-id'] as string;
+  if (!sessionId) {
+    res.status(400).json({ message: 'Missing X-Session-Id header' });
+    return;
+  }
+
+  const allTasks = await store.getAll(sessionId);
   const mandatoryTasks = allTasks.filter(t => t.isMandatory);
 
   const total = MANDATORY_TASKS.length;
