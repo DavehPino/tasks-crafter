@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useCallback } from "react"
+import { lazy, Suspense, useState, useCallback, useEffect } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   fetchTasks,
@@ -110,7 +110,7 @@ export default function App() {
           )}
           {currentPage === "tasks" && (
             <div className="max-w-6xl mx-auto px-4 py-6">
-              <TasksView />
+              <TasksView onMandatoryStatusChange={handleMandatoryStatusChange} />
             </div>
           )}
           {currentPage === "products" && (
@@ -131,7 +131,7 @@ export default function App() {
   )
 }
 
-function TasksView() {
+function TasksView({ onMandatoryStatusChange }: { onMandatoryStatusChange?: (status: boolean) => void }) {
   const queryClient = useQueryClient()
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [page, setPage] = useState(1)
@@ -147,6 +147,13 @@ function TasksView() {
 
   const tasks = response?.tasks ?? []
   const pagination = response?.pagination
+
+  useEffect(() => {
+    if (!onMandatoryStatusChange) return
+    const allMandatory = tasks.filter(t => t.isMandatory)
+    const allCompleted = allMandatory.length > 0 && allMandatory.every(t => t.status === "completed")
+    onMandatoryStatusChange(allCompleted)
+  }, [tasks, onMandatoryStatusChange])
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: ["tasks"] })

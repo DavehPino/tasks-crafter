@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchProducts } from '../api/products'
@@ -143,9 +143,9 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
   }
 
   // Notify parent when mandatory status changes
-  useCallback(() => {
+  useEffect(() => {
     onMandatoryStatusChange?.(allMandatoryCompleted)
-  }, [allMandatoryCompleted, onMandatoryStatusChange])()
+  }, [allMandatoryCompleted, onMandatoryStatusChange])
 
   return (
     <div className="min-h-screen bg-background">
