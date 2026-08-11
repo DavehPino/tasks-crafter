@@ -102,6 +102,14 @@ The platform is designed for internal operators who need to quickly prepare and 
 
 ---
 
+## 🌐 Try It Now
+
+**Live Demo:** https://tasks-crafter.vercel.app
+
+> 🎬 No setup required! Access the full application instantly. Create tasks, browse products, and simulate a live shopping session.
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites
