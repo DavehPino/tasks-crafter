@@ -98,7 +98,7 @@ The platform is designed for internal operators who need to quickly prepare and 
 - **Language**: TypeScript 6.0
 - **Validation**: Zod with shared schemas
 - **HTTP Client**: Fetch API (no external dependencies)
-- **Testing**: Jest with 66 passing tests
+- **Testing**: Jest with 101 passing tests (components, schemas, integration)
 
 ---
 
@@ -569,15 +569,42 @@ npm run lint           # Run oxlint on TypeScript
 ### Testing
 
 **Test Coverage:**
-- Backend: 40 tests (store, schemas, helpers)
-- Frontend: 26 tests (schemas, components)
-- **Total: 66 passing tests**
+- **Backend:** 40 tests (store, schemas, helpers)
+- **Frontend:** 61 tests covering:
+  - Components: TaskInput, TaskCreator, TaskItem, TaskList, ProductCard, ProductSelector, ProductTimeline, SessionMetrics, StatusBadge, LiveShoppingDialog
+  - Skeletons: PageSkeleton, ProductCardSkeleton, TaskListSkeleton (100% coverage)
+  - Schemas: Task schema validation
+- **Total: 101 passing tests** ✅
+- **Overall Coverage:** ~45% statements, ~38% branches, ~31% functions
+
+**Test Breakdown by Component:**
+| Component | Tests | Coverage |
+|-----------|-------|----------|
+| TaskInput | 9 | 91.66% |
+| TaskCreator | 5 | 96% |
+| TaskItem | 8 | 56.25% |
+| ProductCard | 1 | 100% |
+| ProductSelector | 7 | 82.35% |
+| ProductTimeline | 1 | 100% |
+| SessionMetrics | 9 | 100% |
+| StatusBadge | 3 | 100% |
+| LiveShoppingDialog | 8 | 53.73% |
+| Skeletons (3) | 9 | 100% |
+| Task Schema | 1 | 100% |
 
 Run tests:
 ```bash
 npm test                  # Single run with coverage report
 npm run test:watch        # Watch mode (re-run on file change)
 ```
+
+**What's Tested:**
+- ✅ Component rendering and visibility
+- ✅ User interactions (click, type, submit)
+- ✅ State management and callbacks
+- ✅ Conditional rendering based on props
+- ✅ Loading and error states
+- ✅ Zod schema validation
 
 ---
 

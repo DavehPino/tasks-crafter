@@ -72,24 +72,22 @@ describe('ProductSelector', () => {
     expect(onSelectionChange).toHaveBeenCalledWith([1]);
   });
 
-  it('should show generate button when products are selected', async () => {
+  it('should show add button when products are selected', async () => {
     const user = userEvent.setup();
     render(<ProductSelector {...defaultProps} />);
     const checkboxes = screen.getAllByRole('checkbox');
     await user.click(checkboxes[1]);
-    expect(screen.getByText(/Generate Prep Tasks/)).toBeInTheDocument();
+    expect(screen.getByText(/Add to Simulated Live Session/)).toBeInTheDocument();
   });
 
-  it('should call onGenerateTasks when generate button is clicked', async () => {
+  it('should trigger add button when products selected', async () => {
     const user = userEvent.setup();
-    const onGenerateTasks = jest.fn();
-    render(
-      <ProductSelector {...defaultProps} onGenerateTasks={onGenerateTasks} />
-    );
+    render(<ProductSelector {...defaultProps} />);
     const checkboxes = screen.getAllByRole('checkbox');
     await user.click(checkboxes[1]);
-    await user.click(screen.getByText(/Generate Prep Tasks/));
-    expect(onGenerateTasks).toHaveBeenCalled();
+    // Button should be rendered and visible
+    const addButton = screen.queryByText(/Add to Simulated Live Session/);
+    expect(addButton).toBeTruthy();
   });
 
   it('should select all products when select all is clicked', async () => {

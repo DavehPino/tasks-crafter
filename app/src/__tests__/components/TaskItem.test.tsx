@@ -7,6 +7,7 @@ const mockTask: Task = {
   id: '1',
   title: 'Test task',
   status: 'pending',
+  isMandatory: false,
   createdAt: '2026-08-06T00:00:00.000Z',
   updatedAt: '2026-08-06T00:00:00.000Z',
 };
@@ -14,6 +15,11 @@ const mockTask: Task = {
 const completedTask: Task = {
   ...mockTask,
   status: 'completed',
+};
+
+const mandatoryTask: Task = {
+  ...mockTask,
+  isMandatory: true,
 };
 
 describe('TaskItem', () => {
@@ -40,15 +46,14 @@ describe('TaskItem', () => {
     expect(screen.getByText('Test task')).toBeInTheDocument();
     expect(screen.getByLabelText('Mark as completed')).toBeInTheDocument();
     expect(screen.getByLabelText('Edit task')).toBeInTheDocument();
-    expect(screen.getByLabelText('Delete task')).toBeInTheDocument();
   });
 
-  it('should call onDelete when delete button is clicked', async () => {
+  it('should show delete button when task is completed', async () => {
     const user = userEvent.setup();
     const onDelete = jest.fn();
     render(
       <TaskItem
-        task={mockTask}
+        task={completedTask}
         isSelected={false}
         {...defaultProps}
         onDelete={onDelete}
