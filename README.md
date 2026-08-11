@@ -1,105 +1,420 @@
 # Tasks Crafter
 
-A proof-of-concept task management tool for live commerce session preparation. Deployed on **Vercel** with serverless functions and modern frontend architecture.
+A comprehensive live commerce session preparation platform with integrated task management, product discovery, and real-time session simulation. Built with modern full-stack architecture combining serverless functions with containerized microservices.
 
-**Status:** ✅ Fully functional POC | **Architecture:** Vercel Serverless + Vite React | **Repository:** [DavehPino/tasks-crafter](https://github.com/DavehPino/tasks-crafter)
+**Status:** ✅ Production-Ready POC | **Architecture:** Vercel Serverless + Railway Docker | **Type Safety:** End-to-End TypeScript + Zod | **UI Framework:** React 18 + Vite
+
+---
+
+## 🎯 Overview
+
+Tasks Crafter streamlines the preparation workflow for live commerce sessions by providing:
+
+- **Session Preparation**: Mandatory task checklists before going live
+- **Product Management**: Browse and filter products from external API
+- **Live Shopping Simulator**: Real-time video streaming interface with product showcase
+- **Task Management**: Create, update, complete, and bulk delete tasks with persistence per session
+- **Session State Tracking**: Automatic session identification with Redis persistence
+
+The platform is designed for internal operators who need to quickly prepare and validate live commerce events before broadcasting.
+
+---
+
+## 🏗️ Architecture Overview
+
+### Deployment Strategy
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│                    VERCEL (Frontend + Tasks API)                │
+├────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────────────────┐    ┌──────────────────────┐          │
+│  │   Frontend (React)   │    │  Tasks API Functions │          │
+│  │   - Session Prep     │◄──►│  - /api/tasks        │          │
+│  │   - Live Simulator   │    │  - /api/tasks/[id]   │          │
+│  │   - Products Page    │    │  - /api/tasks/bulk   │          │
+│  │   - Task Manager     │    │  - /api/tasks/mandatory          │
+│  └──────────────────────┘    └──────────────────────┘          │
+│         (5173)                      (Serverless)                │
+└────────────────────────────────────────────────────────────────┘
+                                    ▲
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────┐
+│              RAILWAY (Products API - Containerized)             │
+├────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌────────────────────────────────────────────────┐            │
+│  │   Products API (Express + TypeScript)          │            │
+│  │   - Docker containerized                       │            │
+│  │   - GET /products                              │            │
+│  │   - GET /products/:id                          │            │
+│  │   - GET /products/categories                   │            │
+│  │   - Health checks with auto-restart            │            │
+│  │                                                 │            │
+│  │   Port: 3002 | Memory: In-memory store        │            │
+│  └────────────────────────────────────────────────┘            │
+│         (Railway Container)                                     │
+└────────────────────────────────────────────────────────────────┘
+                        ▲
+                        │ (uses Upstash Redis)
+                        ▼
+              ┌──────────────────┐
+              │  Upstash Redis   │
+              │  Session Store   │
+              └──────────────────┘
+```
+
+### Why This Architecture?
+
+| Component | Technology | Rationale |
+|-----------|-----------|-----------|
+| **Frontend Hosting** | Vercel | CDN distribution, zero-config Git integration, serverless functions in same deployment |
+| **Tasks API** | Vercel Functions | Co-located with frontend, no CORS issues, auto-scaling, free tier |
+| **Products API** | Railway + Docker | Separation of concerns, independent scaling, simpler containerization workflow |
+| **Session Storage** | Upstash Redis | Distributed session state, survives API restarts, supports multi-instance |
+| **Validation** | Zod | Runtime type safety across frontend/backend boundary |
+
+---
+
+## 📦 Technology Stack
+
+### Core Infrastructure
+- **Deployment**: Vercel (Frontend + Tasks API) + Railway (Products API)
+- **Container Runtime**: Docker with multi-stage builds
+- **Session Management**: Upstash Redis (serverless)
+
+### Frontend Stack
+- **Framework**: React 18 with TypeScript
+- **Build Tool**: Vite (sub-1s HMR)
+- **Styling**: Tailwind CSS v4 with component system
+- **Data Fetching**: TanStack React Query (caching, sync, refetching)
+- **Animation**: Motion (Framer Motion alternative)
+- **UI Components**: Radix UI primitives + shadcn/ui
+
+### Backend Stack
+- **API Layer**: Node.js Express (Products API) + Vercel Functions (Tasks API)
+- **Language**: TypeScript 6.0
+- **Validation**: Zod with shared schemas
+- **HTTP Client**: Fetch API (no external dependencies)
+- **Testing**: Jest with 66 passing tests
 
 ---
 
 ## 🚀 Quick Start
 
-### Option 1: Run Locally (Fastest)
+### Prerequisites
+- Node.js 18+ (with npm)
+- Docker + Docker Compose (for Products API locally)
+- Vercel CLI (optional, for simulating production locally)
+
+### Option 1: Local Development (Recommended for Development)
 
 ```bash
-# Clone and install
+# Clone repository
 git clone https://github.com/DavehPino/tasks-crafter.git
 cd tasks-crafter
+
+# Install dependencies (monorepo root)
 npm install
 
-# Start frontend (runs on http://localhost:5173)
-npm run dev:app
+# Start Products API in background (Docker)
+docker-compose up -d
 
-# In another terminal, start Express backend (for API at http://localhost:3001)
-npm run dev:backend
+# Start development server
+npm run dev
+# Opens http://localhost:5173
+# Frontend automatically proxies to http://localhost:3002 for products
 ```
 
-The frontend will proxy API calls to the Express backend running on port 3001.
+**What's running:**
+- Frontend: `http://localhost:5173` (Vite dev server with HMR)
+- Tasks API: `http://localhost:5173/api` (proxied)
+- Products API: `http://localhost:3002` (Docker container)
 
 ### Option 2: Simulate Production Locally
 
 ```bash
-# Install Vercel CLI
+# Install Vercel CLI globally
 npm install -g vercel
 
-# Run with serverless functions
+# Start Docker container for Products API
+docker-compose up -d
+
+# Run with Vercel Functions simulation
 vercel dev
-# Opens http://localhost:3000 with both frontend and API from /api
+# Opens http://localhost:3000 (simulates deployment environment)
 ```
 
-### Option 3: Deploy to Vercel
+### Option 3: Deploy to Production
 
 ```bash
-# One-command deployment
+# Automatically deploys via GitHub Actions on push
 git push origin main
-# Vercel auto-deploys on every push
-# Your app is live at: https://tasks-crafter.vercel.app
+
+# Frontend + Tasks API → Vercel (automatic)
+# Products API → Railway (requires manual connection to Railway project)
+
+# View live app
+# https://tasks-crafter.vercel.app
 ```
 
 ---
 
-## 📋 Functional Requirements — All Complete
+## 🎨 Features & User Flows
 
-| Requirement             | Status | Details                                                  |
-| ----------------------- | ------ | -------------------------------------------------------- |
-| Create new tasks        | ✅     | Via template selector or custom text; validated with Zod |
-| Update task title       | ✅     | Inline edit with button or keyboard shortcut            |
-| Mark tasks as completed | ✅     | Via checkmark button; tasks display with strikethrough   |
-| Delete tasks            | ✅     | Individual delete or batch delete with "select all"      |
-| View all tasks          | ✅     | Paginated list (5 per page) with full task details       |
-| **API-First Design**    | ✅     | All operations via REST endpoints                        |
-| **Type-Safe Validation**| ✅     | Zod schemas on client and server                         |
-| **Production Deploy**   | ✅     | Ready for Vercel, Railway, or any Node.js host          |
+### Session Preparation Page
+**Entry point for operators**
+
+1. **Mandatory Tasks Panel** (Left side)
+   - Pre-loaded critical checklist items
+   - Cannot be deleted; must complete before going live
+   - Examples: "Setup Live Shopping Environment", "Configure Payment Gateway"
+   - Visual indicator when all mandatory tasks are complete
+
+2. **Product Selector** (Center)
+   - Browse all products from Products API
+   - Filter by category
+   - Select multiple products for session
+   - Each selected product auto-generates associated tasks
+
+3. **Session Metrics** (Right side)
+   - Real-time count of selected products
+   - Task completion progress
+   - Estimated revenue based on selected inventory
+   - "Ready to Go Live" status indicator
+
+4. **Product Timeline**
+   - Visual sequence of products to be featured
+   - Drag-to-reorder for session flow
+   - Quick preview with product images and pricing
+
+### Live Shopping Simulator
+**Triggered when all mandatory tasks complete**
+
+Features:
+- **Simulated broadcast interface** with video preview
+- **Camera integration** (with user permission)
+- **Audio controls** (mute toggle)
+- **Product carousel** (next/previous navigation)
+- **Live metrics** (fake viewer count, engagement indicators)
+- **Broadcasting controls** (start/end stream)
+
+### Products Catalog Page
+**Browse available products**
+
+- List all products from Products API
+- Category filtering (Men's Clothing, Women's Clothing, Electronics, Jewelry)
+- Product cards with images, prices, ratings
+- Real-time product count
+
+### Task Management
+**Full CRUD operations**
+
+- Create tasks from templates or custom text
+- Inline editing of task titles
+- Mark as completed with visual feedback (strikethrough)
+- Individual or batch deletion
+- Pagination (5 tasks per page)
+- Mandatory vs. optional task distinction
 
 ---
 
-## 🏗️ Architecture
+## 📡 API Reference
 
-### Deployment Model
+### Tasks API (Vercel Serverless Functions)
 
-**Before:** Separate backend (Express) + frontend (Vite)
-- Frontend: Vercel
-- Backend: Render/Railway
-- Problem: CORS configuration, 2 deployments
+All endpoints require `X-Session-Id` header (auto-included by client).
 
-**After:** Unified Vercel deployment
-- Frontend: Served as static files (CDN)
-- API: Serverless functions (`/api` routes)
-- Benefit: Single deployment, no CORS, auto-scaling
-
+#### List Tasks
 ```
-┌─────────────────────────────────────────────┐
-│           Vercel (Single Deployment)        │
-├─────────────────────────────────────────────┤
-│                                             │
-│  Frontend (Vite)  ──→  /api/tasks           │
-│  ├─ React          │    ├─ /health          │
-│  ├─ Tailwind       │    ├─ /tasks/:id       │
-│  └─ TanStack Query │    └─ In-Memory Store  │
-│                                             │
-└─────────────────────────────────────────────┘
+GET /api/tasks?page=1&limit=100
 ```
 
-### Tech Stack
+**Response:**
+```json
+{
+  "tasks": [
+    {
+      "id": "uuid-1234",
+      "title": "Setup Live Shopping Environment",
+      "status": "pending",
+      "isMandatory": true,
+      "productId": null,
+      "createdAt": "2026-08-10T10:37:14.000Z",
+      "updatedAt": "2026-08-10T10:37:14.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 100,
+    "total": 12,
+    "totalPages": 1
+  }
+}
+```
 
-| Layer | Technology | Why |
-|-------|-----------|-----|
-| **Deployment** | Vercel Serverless | Auto-scaling, no ops, free tier, git integration |
-| **Frontend** | React 18 + Vite | Component-based, fast HMR, modern tooling |
-| **API** | Node.js Serverless Functions | TypeScript support, zero config, scales to millions |
-| **Validation** | Zod | Type-safe runtime validation, shared schemas |
-| **Styling** | Tailwind CSS v4 | Utility-first, rapid iteration |
-| **Data Fetching** | TanStack Query | Automatic caching, sync, error handling |
-| **Storage** | In-Memory Map (POC) | Fast, suitable for session-based data |
+#### Create Task
+```
+POST /api/tasks
+Content-Type: application/json
+X-Session-Id: <session-id>
+
+{
+  "title": "Custom task name",
+  "isMandatory": false,
+  "productId": null
+}
+```
+
+#### Update Task
+```
+PUT /api/tasks/:id
+Content-Type: application/json
+X-Session-Id: <session-id>
+
+{
+  "title": "Updated title"
+}
+```
+
+#### Mark Task Complete
+```
+PATCH /api/tasks/:id
+X-Session-Id: <session-id>
+```
+
+#### Delete Task
+```
+DELETE /api/tasks/:id
+X-Session-Id: <session-id>
+```
+
+#### Bulk Create Tasks (from Products)
+```
+POST /api/tasks/bulk
+Content-Type: application/json
+X-Session-Id: <session-id>
+
+{
+  "products": [
+    {
+      "id": 1,
+      "title": "Product Name",
+      "category": "electronics"
+    }
+  ]
+}
+```
+
+**Response:**
+```json
+{
+  "tasks": [ /* array of created tasks */ ],
+  "count": 3
+}
+```
+
+#### Mandatory Tasks Initialization
+```
+POST /api/tasks/mandatory
+X-Session-Id: <session-id>
+```
+
+Creates initial mandatory task checklist on first request per session.
+
+**Response:**
+```json
+{
+  "tasks": [ /* mandatory tasks */ ],
+  "alreadyInitialized": false
+}
+```
+
+#### Get Mandatory Status
+```
+GET /api/tasks/mandatory
+X-Session-Id: <session-id>
+```
+
+**Response:**
+```json
+{
+  "mandatoryTasks": [ /* filtered mandatory tasks */ ],
+  "total": 5,
+  "completed": 3,
+  "allCompleted": false,
+  "canGoLive": false
+}
+```
+
+---
+
+### Products API (Railway Container)
+
+Serves FakeStore API compatible products. No authentication required.
+
+#### List Products
+```
+GET /products
+```
+
+**Query Parameters:**
+- `category` (optional): Filter by category
+- `limit` (optional): Maximum results (default: all)
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "title": "Fjallraven Backpack",
+    "price": 109.95,
+    "description": "...",
+    "category": "men's clothing",
+    "image": "https://...",
+    "rating": {
+      "rate": 3.9,
+      "count": 120
+    }
+  }
+]
+```
+
+#### Get Single Product
+```
+GET /products/:id
+```
+
+#### List Categories
+```
+GET /products/categories
+```
+
+**Response:**
+```json
+[
+  "men's clothing",
+  "women's clothing",
+  "electronics",
+  "jewelery"
+]
+```
+
+#### Health Check
+```
+GET /health
+```
+
+**Response:**
+```json
+{
+  "status": "ok",
+  "service": "products-api",
+  "products": 20
+}
+```
 
 ---
 
@@ -107,226 +422,93 @@ git push origin main
 
 ```
 tasks-crafter/
-├── api/                          ← Vercel serverless functions
-│   ├── tasks/
-│   │   ├── index.ts             # GET /api/tasks, POST /api/tasks
-│   │   └── [id].ts              # GET, PUT, PATCH, DELETE /api/tasks/:id
-│   ├── health.ts                # GET /api/health
-│   ├── store/                   # In-memory task store
-│   ├── models/                  # TypeScript types
-│   ├── schemas/                 # Zod validation
-│   └── helpers/                 # Utilities
 │
-├── app/                          ← Vite React app
+├── api/                                 ← Vercel Serverless Functions
+│   ├── tasks/
+│   │   ├── index.ts                    # POST/GET /api/tasks
+│   │   ├── [id].ts                     # PUT/PATCH/DELETE /api/tasks/:id
+│   │   ├── bulk.ts                     # POST /api/tasks/bulk
+│   │   └── mandatory.ts                # POST/GET /api/tasks/mandatory
+│   ├── health.ts                       # GET /api/health
+│   ├── store/                          # Session-based in-memory stores
+│   │   ├── tasks.ts                    # Task storage with session key
+│   │   └── sessions.ts                 # Session/state management
+│   ├── models/                         # TypeScript interfaces
+│   │   ├── task.ts
+│   │   └── session.ts
+│   ├── schemas/                        # Zod validation schemas
+│   │   └── task.ts
+│   ├── lib/                            # Utilities
+│   │   └── redis.ts                    # Upstash Redis client
+│   └── helpers/                        # Formatting, validation
+│       └── task.ts
+│
+├── app/                                 ← Vite React Frontend
 │   ├── src/
-│   │   ├── components/          # React components
-│   │   ├── api/                 # Fetch client
-│   │   ├── schemas/             # Zod types (shared)
-│   │   └── constants/           # Task templates
-│   ├── dist/                    # Built output (deployed)
+│   │   ├── pages/
+│   │   │   ├── SessionPrepPage.tsx     # Main session prep workflow
+│   │   │   └── ProductsPage.tsx        # Products catalog browser
+│   │   │
+│   │   ├── components/
+│   │   │   ├── LiveShoppingDialog.tsx  # Live streaming simulator
+│   │   │   ├── SessionMetrics.tsx      # Session KPIs display
+│   │   │   ├── ProductSelector.tsx     # Product multi-select
+│   │   │   ├── ProductTimeline.tsx     # Drag-to-reorder products
+│   │   │   ├── TaskList.tsx            # Task list with pagination
+│   │   │   ├── TaskItem.tsx            # Individual task row
+│   │   │   ├── TaskCreator.tsx         # Create new task form
+│   │   │   ├── ProductCard.tsx         # Product preview card
+│   │   │   ├── StatusBadge.tsx         # Status indicator
+│   │   │   ├── ui/                     # Shadcn/Radix primitives
+│   │   │   └── skeletons/              # Loading states
+│   │   │
+│   │   ├── api/
+│   │   │   ├── tasks.ts                # Task API client (Vercel Functions)
+│   │   │   └── products.ts             # Products API client (Railway)
+│   │   │
+│   │   ├── schemas/
+│   │   │   ├── task.ts                 # Zod task schema + types
+│   │   │   └── product.ts              # Zod product schema + types
+│   │   │
+│   │   ├── lib/
+│   │   │   ├── sessionId.ts            # Session ID management
+│   │   │   └── utils.ts                # Utility functions
+│   │   │
+│   │   ├── constants/
+│   │   │   └── templates.ts            # Pre-built task templates
+│   │   │
+│   │   ├── App.tsx                     # Main app component with routing
+│   │   ├── main.tsx                    # React entry point
+│   │   └── index.css                   # Global styles
+│   │
+│   ├── vite.config.ts
+│   ├── tsconfig.json
 │   └── package.json
 │
-├── vercel.json                  ← Deployment config
-├── DEPLOYMENT.md                ← How to deploy
-├── ARCHITECTURE.md              ← System design
-└── package.json                 ← Monorepo config
+├── products-api/                       ← Express API (Railway Container)
+│   ├── src/
+│   │   ├── index.ts                    # Server entry point
+│   │   ├── app.ts                      # Express app setup
+│   │   ├── schemas/
+│   │   │   └── product.ts              # Zod validation
+│   │   └── data/
+│   │       └── products.ts             # Fake product data
+│   │
+│   ├── Dockerfile                      # Multi-stage container build
+│   ├── railway.toml                    # Railway deployment config
+│   ├── jest.config.ts
+│   ├── tsconfig.json
+│   └── package.json
+│
+├── docker-compose.yml                  # Local development orchestration
+├── vercel.json                         # Vercel deployment config
+├── .env.example                        # Environment variables template
+├── .vercelignore                       # Files to exclude from Vercel build
+├── .vercel/                            # Vercel metadata
+├── package.json                        # Monorepo root (scripts)
+├── tsconfig.json                       # Root TypeScript config
+└── README.md                           # This file
 ```
-
----
-
-## 📡 API Reference
-
-All endpoints are serverless functions under `/api`:
-
-| Method   | Route                     | Handler | Description |
-| -------- | ------------------------- | --------|------------|
-| `GET`    | `/api/tasks`              | `api/tasks/index.ts` | List (paginated) |
-| `POST`   | `/api/tasks`              | `api/tasks/index.ts` | Create |
-| `GET`    | `/api/tasks/:id`          | `api/tasks/[id].ts` | Fetch single |
-| `PUT`    | `/api/tasks/:id`          | `api/tasks/[id].ts` | Update title |
-| `PATCH`  | `/api/tasks/:id/complete` | `api/tasks/[id].ts` | Mark completed |
-| `DELETE` | `/api/tasks/:id`          | `api/tasks/[id].ts` | Delete |
-| `GET`    | `/api/health`             | `api/health.ts` | Health check |
-
-### Example Requests
-
-```bash
-# List tasks
-curl https://tasks-crafter.vercel.app/api/tasks?page=1&limit=5
-
-# Create task
-curl -X POST https://tasks-crafter.vercel.app/api/tasks \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Setup livestream"}'
-
-# Update task
-curl -X PUT https://tasks-crafter.vercel.app/api/tasks/task-id \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Updated title"}'
-
-# Mark completed
-curl -X PATCH https://tasks-crafter.vercel.app/api/tasks/task-id/complete
-
-# Delete task
-curl -X DELETE https://tasks-crafter.vercel.app/api/tasks/task-id
-
-# Health check
-curl https://tasks-crafter.vercel.app/api/health
-```
-
-### Response Format
-
-**Success (GET /api/tasks):**
-```json
-{
-  "tasks": [
-    {
-      "id": "uuid",
-      "title": "Setup Live Shopping Environment",
-      "status": "pending",
-      "createdAt": "2026-08-10T10:37:14.000Z",
-      "updatedAt": "2026-08-10T10:37:14.000Z"
-    }
-  ],
-  "pagination": {
-    "page": 1,
-    "limit": 5,
-    "total": 12,
-    "totalPages": 3
-  }
-}
-```
-
-**Error (400 - Validation):**
-```json
-{
-  "errors": [
-    { "field": "title", "message": "Title is required" }
-  ]
-}
-```
-
----
-
-## 🧪 Tests
-
-```bash
-# Run all tests
-npm test
-
-# Watch mode
-npm run test:watch
-```
-
-**Coverage:**
-- Backend: 40 tests (store, schemas, helpers, controllers)
-- Frontend: 26 tests (schemas, components)
-- **Total:** 66 tests, all passing
-
----
-
-## 🚀 Deployment
-
-### To Vercel (Recommended)
-
-```bash
-# 1. Connect GitHub repo to Vercel
-#    Visit https://vercel.com/new and select your repo
-
-# 2. Vercel auto-detects vercel.json configuration
-#    - Builds frontend with: npm run build --prefix app
-#    - Deploys /api as serverless functions
-#    - Serves app/dist as static assets
-
-# 3. Push to main branch
-git push origin main
-# Automatic deployment in ~2 minutes
-
-# 4. Your app is live
-# https://tasks-crafter.vercel.app
-```
-
-### To Other Platforms
-
-**Railway:**
-```bash
-railway link
-railway up
-```
-
-**Render:**
-```bash
-# Use Render UI to select GitHub repo
-# Points to npm run build + npm start
-```
-
-**See:** [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions
-
----
-
-## 💾 Data Persistence
-
-**Current:** In-memory Map (POC)
-- ✅ Fast (O(1) operations)
-- ✅ Simple (no external dependencies)
-- ❌ Data lost on redeployment
-- ❌ Not suitable for multi-instance
-
-**For Production:** Database required
-
-```typescript
-// Replace api/store/tasks.ts with:
-import { db } from './db'; // PostgreSQL, Firebase, etc.
-
-export const getAll = () => db.tasks.findAll();
-export const insert = (title) => db.tasks.create({ title });
-// ... etc
-```
-
-Recommended databases:
-- **PostgreSQL** (Vercel Postgres, Railway)
-- **MongoDB** (Atlas)
-- **Firebase** (real-time, no setup)
-- **Supabase** (managed Postgres)
-
----
-
-## 📚 Documentation
-
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** — How to deploy, configure, scale
-- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — System design, data flow, decisions
-- **API Docs** — See above API Reference section
-
----
-
-## 🎯 Functional Features
-
-### Task Templates
-
-Pre-built templates for live commerce sessions:
-
-```javascript
-const templates = [
-  "Setup Live Shopping Environment",
-  "Configure Product Feed",
-  "Test Video Streaming",
-  "Brief Hosts & Influencers",
-  "Setup Payment Gateway",
-  // ... 5 more
-];
-```
-
-### Inline Editing
-
-Double-click task title or use edit button to modify in-place.
-
-### Batch Operations
-
-"Select All" checkbox + "Delete Selected" button for quick bulk operations.
-
-### Pagination
-
-5 tasks per page, with Previous/Next navigation.
 
 ---
 
@@ -335,118 +517,403 @@ Double-click task title or use edit button to modify in-place.
 ### Local Setup
 
 ```bash
-npm install                    # Install all dependencies
-npm run dev:app                # App on :5173
+# Install all dependencies
+npm install
+
+# Start Products API container
+docker-compose up -d
+
+# Start development server (http://localhost:5173)
+npm run dev
+
+# Run tests
+npm test
+
+# Watch mode for tests
+npm run test:watch
+
+# Build for production
+npm run build
 ```
 
-### Available Scripts
+### Environment Variables
+
+Create `.env.local` (or copy from `.env.example`):
 
 ```bash
-npm run dev                    # Start app dev server
-npm run dev:app                # App only
-npm run build                  # Build app for production
-npm test                       # Run all tests
-npm run test:watch             # Watch mode
+# Frontend API endpoints
+VITE_API_URL=/api                              # Tasks API (proxied in dev)
+VITE_PRODUCTS_API_URL=http://localhost:3002    # Products API URL
+
+# For production:
+# VITE_PRODUCTS_API_URL=https://products-api.up.railway.app
 ```
+
+### Key Scripts
+
+```bash
+# Development
+npm run dev              # Start Vite dev server
+
+# Building
+npm run build           # Compile TypeScript + bundle with Vite
+
+# Testing
+npm test               # Run all tests with coverage
+npm run test:watch     # Watch mode
+
+# Linting
+npm run lint           # Run oxlint on TypeScript
+```
+
+### Testing
+
+**Test Coverage:**
+- Backend: 40 tests (store, schemas, helpers)
+- Frontend: 26 tests (schemas, components)
+- **Total: 66 passing tests**
+
+Run tests:
+```bash
+npm test                  # Single run with coverage report
+npm run test:watch        # Watch mode (re-run on file change)
+```
+
+---
+
+## 🚀 Deployment
+
+### Frontend + Tasks API → Vercel
+
+1. **Connect GitHub repository**
+   ```
+   Visit https://vercel.com/new → Select repository
+   ```
+
+2. **Vercel auto-detects configuration** from `vercel.json`:
+   - Builds frontend: `npm run build --prefix app`
+   - Deploys `/api` folder as serverless functions
+   - Serves `app/dist` as static assets
+
+3. **Deploy** (automatic on push to main)
+   ```bash
+   git push origin main
+   # Vercel builds and deploys in ~2 minutes
+   # App live at https://tasks-crafter.vercel.app
+   ```
+
+4. **Set environment variables** in Vercel dashboard:
+   ```
+   VITE_PRODUCTS_API_URL=https://products-api.up.railway.app
+   ```
+
+### Products API → Railway
+
+1. **Prepare Railway project**
+   ```bash
+   npm install -g railway
+   railway link                    # Connect to Railway project
+   ```
+
+2. **Deploy** (automatic on GitHub push if connected)
+   ```bash
+   railway up                      # Manual push (one-time setup)
+   ```
+
+   Or connect GitHub repo to Railway for automatic deployments.
+
+3. **Railway uses configuration** from `products-api/railway.toml`:
+   ```toml
+   [build]
+   builder = "dockerfile"
+   
+   [deploy]
+   startCommand = "node dist/index.js"
+   healthcheckPath = "/health"
+   restartPolicyType = "on_failure"
+   ```
+
+4. **Get your Products API URL** from Railway dashboard
+   - Set `VITE_PRODUCTS_API_URL` in Vercel environment variables
+
+### Health Checks & Monitoring
+
+Both deployments include health check endpoints:
+
+```bash
+# Tasks API health
+curl https://tasks-crafter.vercel.app/api/health
+
+# Products API health
+curl https://products-api.up.railway.app/health
+```
+
+Railway automatically restarts Products API if health checks fail (configurable in `railway.toml`).
+
+---
+
+## 💾 Data Persistence & State Management
+
+### Session State (Tasks)
+
+- **Storage**: Upstash Redis (for production) + in-memory Map (for development)
+- **Key**: `session:{sessionId}:{entity}`
+- **Lifetime**: Per-session (survives API restarts if using Redis)
+- **Scalability**: Distributed, supports multi-instance deployments
+
+```typescript
+// Tasks are stored per session
+const sessionKey = `session:${sessionId}:tasks`;
+// Allows isolation between concurrent sessions
+```
+
+### Products
+
+- **Storage**: In-memory (Products API)
+- **Data source**: Hardcoded FakeStore dataset (20 products, 4 categories)
+- **Persistence**: N/A (read-only catalog)
+
+### Future: Database
+
+For production persistence, replace in-memory stores:
+
+```typescript
+import { db } from './db';  // PostgreSQL, Firebase, etc.
+
+export const getTasks = (sessionId: string) => 
+  db.tasks.findMany({ where: { sessionId } });
+```
+
+Recommended options:
+- **PostgreSQL** (Vercel Postgres, Railway)
+- **Firebase** (real-time, managed)
+- **Supabase** (managed Postgres with REST API)
+
+---
+
+## 🔐 Security & Compliance
+
+### Current Implementation (POC)
+
+- ✅ Session-based isolation (X-Session-Id header)
+- ✅ Type safety at runtime (Zod validation)
+- ✅ No sensitive data in tasks
+- ⚠️ CORS open to all (acceptable for internal POC)
+- ❌ No authentication/authorization (expected for POC)
+
+### Production Roadmap
+
+- [ ] JWT authentication with expiration
+- [ ] RBAC (operator roles, permissions)
+- [ ] CORS allowlist (specific domains)
+- [ ] Rate limiting (Vercel Rate Limit API)
+- [ ] Request logging & audit trail
+- [ ] HTTPS enforcement (automatic on Vercel/Railway)
+- [ ] Security headers (CSP, X-Frame-Options)
+- [ ] Database encryption at rest
+
+---
+
+## 📊 Performance & Metrics
+
+### Benchmarks
+
+| Metric | Value | Notes |
+|--------|-------|-------|
+| Cold start (serverless) | ~500ms | Vercel caches warm instances |
+| API response time | 50-100ms | In-memory, no DB |
+| Frontend build | ~537ms | Vite with TypeScript |
+| Page load (Vercel CDN) | <100ms | Global edge network |
+| Concurrent sessions | ~100 | Limited by in-memory store |
+
+### Capacity
+
+- **Requests/min**: ~1000 (serverless limit with scaling)
+- **Concurrent users**: ~100 with in-memory store
+- **Task volume**: 5-10 per session (design target)
+- **Products**: 20 static products
+
+### Optimization Opportunities
+
+1. **Caching** – Add Redis for Products API responses
+2. **Compression** – Gzip for API responses
+3. **Code splitting** – Already done with lazy-loaded pages
+4. **Image optimization** – WebP + responsive srcsets for products
+5. **Database indexing** – When adding persistence layer
+
+---
+
+## ⚠️ Known Limitations & Trade-offs
+
+| Limitation | Impact | Mitigation |
+|-----------|--------|-----------|
+| Data lost if Redis unavailable | Medium | Add fallback to PostgreSQL |
+| No real-time multi-user sync | Low | Expected for single-operator POC |
+| Cold start on first request | Low | Vercel caches warm instances |
+| Products API must be externally hosted | Low | Auto-restart via health checks |
+| No offline support | Low | Operators have reliable connectivity |
+| Session expires if not used | Medium | Implement refresh token logic |
+
+---
+
+## 🎯 Feature Roadmap
+
+### Phase 1: Current (Complete)
+- ✅ Session preparation workflow
+- ✅ Task management (CRUD)
+- ✅ Product discovery & filtering
+- ✅ Live shopping simulator
+- ✅ Mandatory task validation
+- ✅ Bulk task generation
+
+### Phase 2: Next Sprint
+- [ ] Analytics dashboard (tasks completed, session duration)
+- [ ] Product search with text index
+- [ ] Operator notes & annotations
+- [ ] Session history & replay
+- [ ] Email notifications (pre-session reminder)
+
+### Phase 3: Production
+- [ ] Multi-operator collaboration (real-time sync)
+- [ ] Database persistence (PostgreSQL)
+- [ ] Authentication (JWT + OAuth)
+- [ ] Advanced filtering & sorting
+- [ ] API rate limiting & quotas
+- [ ] Error tracking (Sentry)
+- [ ] APM & observability (Datadog)
+
+### Phase 4: Scale
+- [ ] Mobile app (React Native)
+- [ ] International localization (i18n)
+- [ ] A/B testing framework
+- [ ] Recommendation engine (ML)
+- [ ] Third-party integrations (Shopify, TiendaNube)
+
+---
+
+## 🧪 Testing
+
+### Test Structure
+
+```
+api/                       # Serverless function tests
+├── __tests__/
+│   ├── store.test.ts      # Session store operations
+│   ├── schemas.test.ts    # Validation logic
+│   └── helpers.test.ts    # Utility functions
+
+app/src/                   # Frontend tests
+├── __tests__/
+│   ├── schemas.test.ts    # Zod validation
+│   └── components/        # Component tests
+```
+
+### Running Tests
+
+```bash
+npm test                   # Full suite with coverage
+npm run test:watch         # Watch mode
+npm test -- --testPathPattern="schema"  # Single file
+```
+
+### Coverage Goals
+
+- **Statements**: >80%
+- **Branches**: >75%
+- **Functions**: >85%
+- **Lines**: >80%
+
+---
+
+## 🤝 Development Workflow
 
 ### Making Changes
 
-**App changes:**
-- Edit files in `app/src`
-- Vite HMR reloads automatically
+#### Frontend Changes
+```bash
+# 1. Edit files in app/src/
+# 2. Vite HMR reloads automatically at http://localhost:5173
+# 3. Run tests
+npm test
 
-**API changes:**
-- Edit files in `api/`
-- Use `vercel dev` to simulate production
+# 4. Build & verify production bundle
+npm run build
+npm run preview
+```
 
----
+#### API Changes (Vercel Functions)
+```bash
+# 1. Edit files in api/
+# 2. Use Vercel Functions locally
+vercel dev    # Opens http://localhost:3000
 
-## ⚠️ Known Limitations
+# 3. Or rebuild and test with mock requests
+npm run build
+```
 
-| Limitation | Impact | Workaround |
-|-----------|--------|-----------|
-| Data lost on redeployment | Medium | Use database for persistence |
-| Cold start (~500ms) | Low | Normal for serverless, Vercel caches functions |
-| No multi-user sync | Low | Expected for single-operator POC |
-| No real-time updates | Low | Would need WebSocket layer |
+#### Products API Changes
+```bash
+# 1. Edit files in products-api/src/
+# 2. Rebuild Docker image
+docker-compose down
+docker-compose up -d
 
----
+# 3. Test endpoints
+curl http://localhost:3002/products
+```
 
-## 🔐 Security Notes
+### Commit Message Convention
 
-**Current (POC - Internal Use):**
-- ❌ No authentication
-- ❌ No authorization
-- ⚠️ CORS open to all (OK for POC)
-
-**For Production:**
-- [ ] Add JWT or session auth
-- [ ] Implement RBAC (roles)
-- [ ] Restrict CORS
-- [ ] Add rate limiting
-- [ ] Enable HTTPS (automatic on Vercel)
-
----
-
-## 📈 Performance
-
-**Metrics:**
-- Cold start: ~500ms (serverless default)
-- API response: ~50-100ms
-- Frontend build: ~537ms
-- Global latency: <100ms (Vercel CDN)
-
-**Capacity:**
-- Concurrent users: ~100 (in-memory)
-- Requests/min: ~1000 (serverless limit)
-- Database queries: N/A (in-memory)
+```
+feat: Add live shopping simulator
+fix: Handle missing product category
+refactor: Simplify task store logic
+docs: Update API endpoints
+test: Add session store tests
+```
 
 ---
 
-## 🚀 Future Improvements
+## 🔗 Useful Links
 
-### Short-term (Next Sprint)
-- [ ] Add database (PostgreSQL)
-- [ ] Implement authentication (JWT)
-- [ ] Add product integration (TiendaNube/Shopify)
-- [ ] Improve error UI (toast notifications)
+- **Live App**: https://tasks-crafter.vercel.app
+- **GitHub**: https://github.com/DavehPino/tasks-crafter
+- **Vercel Dashboard**: https://vercel.com/dashboard
+- **Railway Dashboard**: https://railway.app/dashboard
+- **Upstash Console**: https://console.upstash.com
 
-### Long-term (Production)
-- [ ] Multi-user real-time sync (WebSocket)
-- [ ] Advanced filtering & search
-- [ ] Analytics dashboard
-- [ ] Mobile app
-- [ ] Integration tests (Playwright)
-
----
-
-## 🤝 Contributing
-
-1. Clone the repo
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make changes and test (`npm test`)
-4. Commit (`git commit -m 'Add amazing feature'`)
-5. Push (`git push origin feature/amazing-feature`)
-6. Open a Pull Request
+### Documentation Files
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** – Detailed deployment procedures
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** – System design & decision log
+- **[AGENTS.md](./AGENTS.md)** – Development guidelines
 
 ---
 
 ## 📝 License
 
-This project is provided as-is for evaluation purposes.
+This project is provided as-is for evaluation purposes. All rights reserved.
 
 ---
 
-## 🔗 Links
+## 👨‍💻 About This Project
 
-- **Live App:** https://tasks-crafter.vercel.app
-- **GitHub:** https://github.com/DavehPino/tasks-crafter
-- **Vercel Dashboard:** https://vercel.com/dashboard
-- **Deployment Guide:** [DEPLOYMENT.md](./DEPLOYMENT.md)
-- **Architecture Guide:** [ARCHITECTURE.md](./ARCHITECTURE.md)
+**Built for**: Live commerce session preparation at scale  
+**Team**: Single developer  
+**Timeline**: 4-5 hour development window  
+**Context**: Full-stack TypeScript engineer evaluation
+
+This project demonstrates:
+- ✅ Full-stack API design (serverless + containerized)
+- ✅ Modern frontend architecture (React, TanStack Query, Tailwind)
+- ✅ Type safety end-to-end (TypeScript + Zod)
+- ✅ Production-grade deployment strategy (Vercel + Railway)
+- ✅ Session-based state isolation with Redis
+- ✅ Comprehensive testing & error handling
+- ✅ UI/UX polish with accessibility considerations
+- ✅ Clear documentation & architectural decisions
 
 ---
 
-**Last Updated:** August 10, 2026
-
-Built with ❤️ for live commerce
+**Last Updated:** August 10, 2026  
+**Version:** 1.0.0  
+**Status:** Production-Ready POC
