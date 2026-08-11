@@ -21,6 +21,7 @@ interface Props {
 export const SessionPrepPage = ({ onMandatoryStatusChange, onProductsSelected }: Props) => {
   const queryClient = useQueryClient()
   const [selectedProductIds, setSelectedProductIds] = useState<number[]>([])
+  const [confirmedProductIds, setConfirmedProductIds] = useState<number[]>([])
   const [expandedProductId, setExpandedProductId] = useState<number>()
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [showSuccessNotification, setShowSuccessNotification] = useState(false)
@@ -79,13 +80,19 @@ export const SessionPrepPage = ({ onMandatoryStatusChange, onProductsSelected }:
     [tasks, selectedProductIds]
   )
 
+  // Confirmed products (added to live session)
+  const confirmedProducts = useMemo(
+    () => products.filter(p => confirmedProductIds.includes(p.id)),
+    [products, confirmedProductIds]
+  )
+
   const productsWithAllTasksComplete = useMemo(() => {
-    return selectedProductIds.filter(productId => {
+    return confirmedProductIds.filter(productId => {
       const productTasks = tasks.filter(t => t.productId === productId)
       if (productTasks.length === 0) return false
       return productTasks.every(t => t.status === 'completed')
     })
-  }, [tasks, selectedProductIds])
+  }, [tasks, confirmedProductIds])
 
   const completedTasksForSelected = useMemo(
     () => tasksForSelectedProducts.filter(t => t.status === 'completed').length,
@@ -109,6 +116,8 @@ export const SessionPrepPage = ({ onMandatoryStatusChange, onProductsSelected }:
   }, [selectedProducts, tasks])
 
   const handleConfirmSelection = (selectedProds: Product[]) => {
+    const prodIds = selectedProds.map(p => p.id)
+    setConfirmedProductIds(prodIds)
     onProductsSelected?.(selectedProds)
     setShowSuccessNotification(true)
     setTimeout(() => setShowSuccessNotification(false), 3000)
@@ -175,7 +184,7 @@ export const SessionPrepPage = ({ onMandatoryStatusChange, onProductsSelected }:
 
         {/* Metrics */}
         <SessionMetrics
-          totalProducts={selectedProducts.length}
+          totalProducts={confirmedProducts.length}
           readyProducts={productsWithAllTasksComplete.length}
           totalTasks={tasksForSelectedProducts.length}
           completedTasks={completedTasksForSelected}
