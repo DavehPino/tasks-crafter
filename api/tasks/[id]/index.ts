@@ -1,8 +1,8 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import * as store from '../store/tasks.js';
-import { parseBody } from '../helpers/parseBody.js';
-import { updateTaskSchema, UpdateTaskDTO } from '../schemas/task.js';
-import { setCorsHeaders, handleCors } from '../helpers/cors.js';
+import * as store from '../../store/tasks.js';
+import { parseBody } from '../../helpers/parseBody.js';
+import { updateTaskSchema, UpdateTaskDTO } from '../../schemas/task.js';
+import { setCorsHeaders, handleCors } from '../../helpers/cors.js';
 
 const getTaskById = (req: VercelRequest, res: VercelResponse): void => {
   const id = req.query.id as string;
