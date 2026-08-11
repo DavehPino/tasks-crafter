@@ -23,6 +23,7 @@ export const SessionPrepPage = ({ onMandatoryStatusChange, onProductsSelected }:
   const [selectedProductIds, setSelectedProductIds] = useState<number[]>([])
   const [expandedProductId, setExpandedProductId] = useState<number>()
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [showSuccessNotification, setShowSuccessNotification] = useState(false)
 
   // Fetch products
   const { data: products = [], isLoading: productsLoading, isError: productsError } = useQuery({
@@ -109,6 +110,8 @@ export const SessionPrepPage = ({ onMandatoryStatusChange, onProductsSelected }:
 
   const handleConfirmSelection = (selectedProds: Product[]) => {
     onProductsSelected?.(selectedProds)
+    setShowSuccessNotification(true)
+    setTimeout(() => setShowSuccessNotification(false), 3000)
   }
 
   const handleToggleSelect = (id: string) => {
@@ -132,13 +135,28 @@ export const SessionPrepPage = ({ onMandatoryStatusChange, onProductsSelected }:
     onMandatoryStatusChange?.(allMandatoryCompleted)
   }, [allMandatoryCompleted, onMandatoryStatusChange])
 
-  // Notify parent when selected products change
-  useEffect(() => {
-    onProductsSelected?.(selectedProducts)
-  }, [selectedProducts, onProductsSelected])
-
   return (
     <div className="min-h-screen bg-background">
+      {/* Success Notification */}
+      <AnimatePresence>
+        {showSuccessNotification && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="fixed top-4 left-1/2 -translate-x-1/2 z-50"
+          >
+            <div className="bg-green-500/90 backdrop-blur-sm text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="font-medium">Products added to simulated live session</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Page Header */}
         <motion.div

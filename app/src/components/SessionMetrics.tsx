@@ -2,7 +2,6 @@ import { motion } from "motion/react";
 import { Radio, CheckCircle2, AlertCircle, Shield } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { TaskList } from "./TaskList";
@@ -32,7 +31,6 @@ export const SessionMetrics = ({
   totalTasks,
   completedTasks,
   mandatoryCompleted,
-  isSessionReady,
   sessionTasks,
   selectedTasks,
   allSelected,
@@ -48,8 +46,7 @@ export const SessionMetrics = ({
   const productsPercentage =
     totalProducts > 0 ? Math.round((readyProducts / totalProducts) * 100) : 0;
 
-  // Session is ready only if mandatory tasks are completed AND products are ready
-  const canGoLive = mandatoryCompleted && isSessionReady;
+
 
   return (
     <Card className="p-6 mb-8 border-border/50 bg-card">

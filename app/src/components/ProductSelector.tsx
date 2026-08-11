@@ -135,7 +135,7 @@ export const ProductSelector = ({
                   className="flex-1 h-11"
                 >
                   <Sparkles className="h-4 w-4 mr-2" />
-                  Add to Live Session ({selected.size})
+                  Add to Simulated Live Session ({selected.size})
                 </Button>
               </motion.div>
             )}
