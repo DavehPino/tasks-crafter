@@ -21,6 +21,7 @@ import {
   Wifi,
   ChevronLeft,
   ChevronRight,
+  X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Product } from '@/schemas/product'
@@ -118,7 +119,7 @@ export const LiveShoppingDialog = ({ open, onOpenChange, canGoLive, products }: 
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[90vw] md:max-w-[800px] lg:max-w-[1000px] p-0 gap-0 bg-background overflow-hidden">
+      <DialogContent hideCloseButton className="sm:max-w-[90vw] md:max-w-[800px] lg:max-w-[1000px] p-0 gap-0 bg-background overflow-hidden">
         {/* Header */}
         <DialogHeader className="px-6 py-4 border-b border-border/50">
           <div className="flex items-center justify-between">
@@ -126,21 +127,29 @@ export const LiveShoppingDialog = ({ open, onOpenChange, canGoLive, products }: 
               <Radio className="h-5 w-5 text-terrific-orange" />
               Live Shopping Simulator
             </DialogTitle>
-            {isStreaming && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-2"
+            <div className="flex items-center gap-3">
+              {isStreaming && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center gap-2"
+                >
+                  <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                  </span>
+                  <Badge variant="destructive" className="font-mono text-xs">
+                    LIVE
+                  </Badge>
+                </motion.div>
+              )}
+              <button
+                onClick={handleClose}
+                className="rounded-sm opacity-70 hover:opacity-100 transition-opacity"
               >
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                </span>
-                <Badge variant="destructive" className="font-mono text-xs">
-                  LIVE
-                </Badge>
-              </motion.div>
-            )}
+                <X className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </DialogHeader>
 
