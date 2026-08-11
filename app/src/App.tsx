@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useCallback, useEffect } from "react"
+import { lazy, Suspense, useState, useCallback, useEffect, useRef } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   fetchTasks,
@@ -13,7 +13,7 @@ import { PageSkeleton } from "./components/skeletons/PageSkeleton"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { LiveShoppingDialog } from "./components/LiveShoppingDialog"
-import { Moon, Sun, Radio, RefreshCw } from "lucide-react"
+import { Moon, Sun, Radio, RefreshCw, Menu, Check } from "lucide-react"
 import { clearSessionId } from "./lib/sessionId"
 import type { Product } from "./schemas/product"
 
@@ -29,6 +29,21 @@ export default function App() {
   const [isLiveDialogOpen, setIsLiveDialogOpen] = useState(false)
   const [canGoLive, setCanGoLive] = useState(false)
   const [selectedProductsForLive, setSelectedProductsForLive] = useState<Product[]>([])
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const mobileMenuRef = useRef<HTMLDivElement>(null)
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+        setIsMobileMenuOpen(false)
+      }
+    }
+    if (isMobileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isMobileMenuOpen])
 
   const toggleTheme = () => {
     setIsDark(!isDark)
@@ -52,12 +67,65 @@ export default function App() {
     <TooltipProvider>
     <div className="min-h-screen bg-background">
       <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <h1 className="text-xl font-bold gradient-terrific-text">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-6 min-w-0" ref={mobileMenuRef}>
+            <h1 className="text-lg sm:text-xl font-bold gradient-terrific-text shrink-0">
               Tasks Crafter
             </h1>
-            <div className="flex gap-1">
+
+            {/* Hamburger Menu - Mobile Only */}
+            <div className="relative sm:hidden">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                <Menu className="h-4 w-4" />
+              </Button>
+
+              {/* Dropdown */}
+              {isMobileMenuOpen && (
+                <div className="absolute top-full left-0 mt-1 w-44 bg-background border border-border/50 rounded-lg shadow-lg py-1 z-50">
+                  <button
+                    onClick={() => { setCurrentPage("session"); setIsMobileMenuOpen(false) }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+                  >
+                    {currentPage === "session" ? (
+                      <Check className="h-4 w-4 text-primary" />
+                    ) : (
+                      <div className="h-4 w-4" />
+                    )}
+                    <span className={currentPage === "session" ? "font-medium" : ""}>Session Prep</span>
+                  </button>
+                  <button
+                    onClick={() => { setCurrentPage("tasks"); setIsMobileMenuOpen(false) }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+                  >
+                    {currentPage === "tasks" ? (
+                      <Check className="h-4 w-4 text-primary" />
+                    ) : (
+                      <div className="h-4 w-4" />
+                    )}
+                    <span className={currentPage === "tasks" ? "font-medium" : ""}>Tasks</span>
+                  </button>
+                  <button
+                    onClick={() => { setCurrentPage("products"); setIsMobileMenuOpen(false) }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted transition-colors"
+                  >
+                    {currentPage === "products" ? (
+                      <Check className="h-4 w-4 text-primary" />
+                    ) : (
+                      <div className="h-4 w-4" />
+                    )}
+                    <span className={currentPage === "products" ? "font-medium" : ""}>Products</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Desktop Nav */}
+            <div className="hidden sm:flex gap-1">
               <Button
                 variant={currentPage === "session" ? "default" : "ghost"}
                 size="sm"
@@ -85,7 +153,7 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Live Shopping Button */}
             <Button
               variant={canGoLive ? "default" : "outline"}
@@ -96,8 +164,8 @@ export default function App() {
                 : "border-yellow-300 text-yellow-700 dark:border-yellow-600 dark:text-yellow-400"
               }
             >
-              <Radio className={`h-4 w-4 mr-1.5 ${canGoLive ? "animate-pulse" : ""}`} />
-              <span className="hidden sm:inline">Simulate</span>
+              <Radio className={`h-4 w-4 ${canGoLive ? "animate-pulse" : ""}`} />
+              <span className="hidden sm:inline ml-1.5">Simulate</span>
             </Button>
 
             {/* Theme Toggle */}
@@ -105,12 +173,12 @@ export default function App() {
               variant="ghost"
               size="icon"
               onClick={toggleTheme}
-              className="h-9 w-9"
+              className="h-8 w-8 sm:h-9 sm:w-9"
             >
               {isDark ? (
-                <Sun className="h-4 w-4 text-terrific-orange" />
+                <Sun className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-terrific-orange" />
               ) : (
-                <Moon className="h-4 w-4 text-terrific-pink" />
+                <Moon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-terrific-pink" />
               )}
             </Button>
 
@@ -121,9 +189,9 @@ export default function App() {
                   variant="ghost"
                   size="icon"
                   onClick={handleResetSession}
-                  className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                  className="h-8 w-8 sm:h-9 sm:w-9 text-muted-foreground hover:text-foreground"
                 >
-                  <RefreshCw className="h-4 w-4" />
+                  <RefreshCw className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
