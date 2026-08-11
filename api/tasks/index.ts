@@ -74,9 +74,9 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;
 
   if (req.method === 'GET') {
-    getAllTasks(req, res);
+    return getAllTasks(req, res);
   } else if (req.method === 'POST') {
-    createTask(req, res);
+    return createTask(req, res);
   } else {
     res.status(405).json({ message: 'Method not allowed' });
   }
