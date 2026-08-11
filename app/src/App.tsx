@@ -11,8 +11,10 @@ import { TaskCreator } from "./components/TaskCreator"
 import { TaskList } from "./components/TaskList"
 import { PageSkeleton } from "./components/skeletons/PageSkeleton"
 import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { LiveShoppingDialog } from "./components/LiveShoppingDialog"
-import { Moon, Sun, Radio } from "lucide-react"
+import { Moon, Sun, Radio, RefreshCw } from "lucide-react"
+import { clearSessionId } from "./lib/sessionId"
 import type { Product } from "./schemas/product"
 
 // Lazy load pages for code splitting
@@ -41,7 +43,13 @@ export default function App() {
     setSelectedProductsForLive(products)
   }, [])
 
+  const handleResetSession = useCallback(() => {
+    clearSessionId()
+    window.location.reload()
+  }, [])
+
   return (
+    <TooltipProvider>
     <div className="min-h-screen bg-background">
       <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -105,6 +113,23 @@ export default function App() {
                 <Moon className="h-4 w-4 text-terrific-pink" />
               )}
             </Button>
+
+            {/* Reset Session */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleResetSession}
+                  className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Resets the session for testing purposes</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
       </nav>
@@ -138,6 +163,7 @@ export default function App() {
         products={selectedProductsForLive}
       />
     </div>
+    </TooltipProvider>
   )
 }
 
