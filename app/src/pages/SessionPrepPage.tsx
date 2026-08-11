@@ -187,12 +187,11 @@ export const SessionPrepPage = ({ onMandatoryStatusChange, onProductsSelected }:
             tasksForSelectedProducts.length > 0 &&
             tasksForSelectedProducts.every(t => selected.has(t.id))
           }
-          onToggleSelect={handleToggleSelect}
-          onToggleAll={handleToggleAll}
-          onComplete={(id) => completeMutation.mutate(id)}
-          onUpdate={() => {}}
-          onDelete={(id) => deleteMutation.mutate(id)}
-          showProductInfo={selectedProducts.length > 0}
+           onToggleSelect={handleToggleSelect}
+           onToggleAll={handleToggleAll}
+           onComplete={(id) => completeMutation.mutate(id)}
+           onUpdate={() => {}}
+           onDelete={(id) => deleteMutation.mutate(id)}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">

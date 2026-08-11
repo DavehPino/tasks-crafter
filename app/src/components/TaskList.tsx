@@ -13,11 +13,10 @@ interface Props {
   onComplete: (id: string) => void
   onUpdate: (id: string, title: string) => void
   onDelete: (id: string) => void
-  showProductInfo?: boolean
   showCheckboxes?: boolean
 }
 
-export function TaskList({ tasks, isLoading, isError, selected, allSelected, onToggleSelect, onToggleAll, onComplete, onUpdate, onDelete, showProductInfo = false, showCheckboxes = true }: Props) {
+export function TaskList({ tasks, isLoading, isError, selected, allSelected, onToggleSelect, onToggleAll, onComplete, onUpdate, onDelete, showCheckboxes = true }: Props) {
   if (isLoading) {
     return <p className="text-sm text-gray-400 text-center py-6">Loading tasks...</p>
   }
@@ -56,47 +55,36 @@ export function TaskList({ tasks, isLoading, isError, selected, allSelected, onT
           </div>
           <ul className="divide-y divide-gray-100">
             {mandatoryTasks.map((task) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                isSelected={selected.has(task.id)}
-                onToggleSelect={onToggleSelect}
-                onComplete={onComplete}
-                onUpdate={onUpdate}
-                onDelete={onDelete}
-                showProductInfo={showProductInfo}
-                showCheckbox={false}
-              />
+             <TaskItem
+                 key={task.id}
+                 task={task}
+                 isSelected={selected.has(task.id)}
+                 onToggleSelect={onToggleSelect}
+                 onComplete={onComplete}
+                 onUpdate={onUpdate}
+                 onDelete={onDelete}
+                 showCheckbox={false}
+               />
             ))}
           </ul>
         </div>
       )}
 
-      {/* Regular Tasks Section */}
-      {regularTasks.length > 0 && (
-        <div className={mandatoryTasks.length > 0 ? "mt-4" : ""}>
-          {showProductInfo && (
-            <div className="flex items-center gap-3 py-2 border-b border-gray-200 text-xs text-gray-500 px-2">
-              <div className="w-4 shrink-0" />
-              <div className="flex-1">Task</div>
-              <div className="w-20">Product</div>
-              <div className="w-16">Status</div>
-              <div className="w-8" />
-            </div>
-          )}
-          <ul className="divide-y divide-gray-100">
-            {regularTasks.map((task) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                isSelected={selected.has(task.id)}
-                onToggleSelect={onToggleSelect}
-                onComplete={onComplete}
-                onUpdate={onUpdate}
-                onDelete={onDelete}
-                showProductInfo={showProductInfo}
-                showCheckbox={showCheckboxes}
-              />
+       {/* Regular Tasks Section */}
+       {regularTasks.length > 0 && (
+         <div className={mandatoryTasks.length > 0 ? "mt-4" : ""}>
+           <ul className="divide-y divide-gray-100">
+             {regularTasks.map((task) => (
+               <TaskItem
+                 key={task.id}
+                 task={task}
+                 isSelected={selected.has(task.id)}
+                 onToggleSelect={onToggleSelect}
+                 onComplete={onComplete}
+                 onUpdate={onUpdate}
+                 onDelete={onDelete}
+                 showCheckbox={showCheckboxes}
+               />
             ))}
           </ul>
         </div>

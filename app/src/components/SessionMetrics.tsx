@@ -22,7 +22,6 @@ interface Props {
   onComplete: (id: string) => void;
   onUpdate: (id: string, title: string) => void;
   onDelete: (id: string) => void;
-  showProductInfo: boolean;
 }
 
 export const SessionMetrics = ({
@@ -39,7 +38,6 @@ export const SessionMetrics = ({
   onComplete,
   onUpdate,
   onDelete,
-  showProductInfo,
 }: Props) => {
   const tasksPercentage =
     totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
@@ -178,12 +176,11 @@ export const SessionMetrics = ({
               selected={selectedTasks}
               allSelected={allSelected}
               onToggleSelect={onToggleSelect}
-              onToggleAll={onToggleAll}
-              onComplete={onComplete}
-              onUpdate={onUpdate}
-              onDelete={onDelete}
-              showProductInfo={showProductInfo}
-              showCheckboxes={false}
+               onToggleAll={onToggleAll}
+               onComplete={onComplete}
+               onUpdate={onUpdate}
+               onDelete={onDelete}
+               showCheckboxes={false}
             />
           </div>
         )}

@@ -4,7 +4,6 @@ import { Check, Pencil, Trash2, X, Save, Shield } from "lucide-react"
 import type { Task } from "../schemas/task"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
 interface Props {
@@ -14,7 +13,6 @@ interface Props {
   onComplete: (id: string) => void;
   onUpdate: (id: string, title: string) => void;
   onDelete: (id: string) => void;
-  showProductInfo?: boolean;
   showCheckbox?: boolean;
 }
 
@@ -25,7 +23,6 @@ export function TaskItem({
   onComplete,
   onUpdate,
   onDelete,
-  showProductInfo = false,
   showCheckbox = true,
 }: Props) {
   const [isEditing, setIsEditing] = useState(false)
@@ -83,7 +80,7 @@ export function TaskItem({
       )}
 
       {/* Task Content */}
-      <div className={cn("flex-1 min-w-0", showProductInfo && "max-w-md")}>
+      <div className="flex-1 min-w-0">
         <AnimatePresence mode="wait">
           {isEditing ? (
             <motion.form
@@ -134,23 +131,6 @@ export function TaskItem({
         </AnimatePresence>
       </div>
 
-      {/* Product Info */}
-      {showProductInfo && task.productId && (
-        <Badge variant="outline" className="shrink-0 text-[10px]">
-          #{task.productId}
-        </Badge>
-      )}
-
-      {/* Status Badge */}
-      {showProductInfo && (
-        <Badge
-          variant={isCompleted ? "success" : "secondary"}
-          className="shrink-0"
-        >
-          {isCompleted ? "Done" : "Pending"}
-        </Badge>
-      )}
-
       {/* Actions */}
       {!isCompleted && !isEditing && (
         <div className="flex items-center gap-1">
@@ -163,7 +143,7 @@ export function TaskItem({
           >
             <Check className="h-4 w-4 text-green-600" />
           </Button>
-          {!showProductInfo && !isMandatory && (
+          {!isMandatory && (
             <Button
               size="icon"
               variant="ghost"
@@ -178,7 +158,7 @@ export function TaskItem({
       )}
 
       {/* Delete Button */}
-      {!isMandatory && (!showProductInfo || isCompleted) && (
+      {!isMandatory && isCompleted && (
         <Button
           size="icon"
           variant="ghost"
