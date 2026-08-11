@@ -4,17 +4,17 @@ import { setCorsHeaders, handleCors } from '../helpers/cors.js';
 
 const MANDATORY_TASKS = [
   {
-    id: 'mandatory-av-check',
+    prefix: 'mandatory-av-check',
     title: 'Test audio/video equipment',
     description: 'Verify cameras, microphones, and streaming software are working correctly',
   },
   {
-    id: 'mandatory-inventory',
+    prefix: 'mandatory-inventory',
     title: 'Confirm product inventory',
     description: 'Ensure all products have sufficient stock for the live session',
   },
   {
-    id: 'mandatory-pricing',
+    prefix: 'mandatory-pricing',
     title: 'Review pricing and descriptions',
     description: 'Verify all product prices, discounts, and descriptions are accurate',
   },
@@ -22,7 +22,7 @@ const MANDATORY_TASKS = [
 
 const initializeMandatoryTasks = async (req: VercelRequest, res: VercelResponse): Promise<void> => {
   const existingTasks = await store.getAll();
-  const mandatoryExists = MANDATORY_TASKS.some(t => existingTasks.some(et => et.id === t.id));
+  const mandatoryExists = existingTasks.some(t => t.isMandatory);
 
   if (mandatoryExists) {
     const mandatoryTasks = existingTasks.filter(t => t.isMandatory);

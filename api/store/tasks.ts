@@ -54,14 +54,15 @@ export const insertMany = async (tasks: Array<{ title: string; productId: number
   return result;
 };
 
-export const insertMandatory = async (tasks: Array<{ id: string; title: string; description: string }>): Promise<Task[]> => {
+export const insertMandatory = async (tasks: Array<{ prefix: string; title: string; description: string }>): Promise<Task[]> => {
   const entries: Record<string, string> = {};
   const result: Task[] = [];
 
   for (const t of tasks) {
     const now = new Date().toISOString();
+    const id = `${t.prefix}-${crypto.randomUUID().slice(0, 8)}`;
     const task: Task = {
-      id: t.id,
+      id,
       title: t.title,
       status: 'pending',
       isMandatory: true,
