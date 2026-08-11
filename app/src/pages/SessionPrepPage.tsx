@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchProducts } from '../api/products'
 import {
   fetchTasks,
-  bulkCreateTasksFromProducts,
   completeTask,
   deleteTask,
 } from '../api/tasks'
@@ -16,9 +15,10 @@ import type { Product } from '../schemas/product'
 
 interface Props {
   onMandatoryStatusChange?: (canGoLive: boolean) => void
+  onProductsSelected?: (products: Product[]) => void
 }
 
-export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
+export const SessionPrepPage = ({ onMandatoryStatusChange, onProductsSelected }: Props) => {
   const queryClient = useQueryClient()
   const [selectedProductIds, setSelectedProductIds] = useState<number[]>([])
   const [expandedProductId, setExpandedProductId] = useState<number>()
@@ -44,21 +44,6 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
     () => mandatoryTasks.length > 0 && mandatoryTasks.every(t => t.status === 'completed'),
     [mandatoryTasks]
   )
-
-  // Bulk create tasks mutation
-  const bulkCreateMutation = useMutation({
-    mutationFn: (selectedProducts: Product[]) =>
-      bulkCreateTasksFromProducts(
-        selectedProducts.map(p => ({
-          id: p.id,
-          title: p.title,
-          category: p.category,
-        }))
-      ),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] })
-    },
-  })
 
   // Complete task mutation
   const completeMutation = useMutation({
@@ -122,8 +107,8 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
       .filter(({ tasks: pTasks }) => pTasks.length > 0)
   }, [selectedProducts, tasks])
 
-  const handleGenerateTasks = (selectedProds: Product[]) => {
-    bulkCreateMutation.mutate(selectedProds)
+  const handleConfirmSelection = (selectedProds: Product[]) => {
+    onProductsSelected?.(selectedProds)
   }
 
   const handleToggleSelect = (id: string) => {
@@ -146,6 +131,11 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
   useEffect(() => {
     onMandatoryStatusChange?.(allMandatoryCompleted)
   }, [allMandatoryCompleted, onMandatoryStatusChange])
+
+  // Notify parent when selected products change
+  useEffect(() => {
+    onProductsSelected?.(selectedProducts)
+  }, [selectedProducts, onProductsSelected])
 
   return (
     <div className="min-h-screen bg-background">
@@ -201,8 +191,7 @@ export const SessionPrepPage = ({ onMandatoryStatusChange }: Props) => {
                 isLoading={productsLoading}
                 isError={productsError}
                 onSelectionChange={setSelectedProductIds}
-                onGenerateTasks={handleGenerateTasks}
-                isGeneratingTasks={bulkCreateMutation.isPending}
+                onConfirmSelection={handleConfirmSelection}
               />
             </Card>
           </motion.div>

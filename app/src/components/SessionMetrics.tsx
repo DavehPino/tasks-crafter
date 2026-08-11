@@ -1,29 +1,29 @@
-import { motion } from 'motion/react'
-import { Radio, CheckCircle2, AlertCircle, Shield } from 'lucide-react'
-import { Card } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
-import { TaskList } from './TaskList'
-import type { Task } from '../schemas/task'
+import { motion } from "motion/react";
+import { Radio, CheckCircle2, AlertCircle, Shield } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { TaskList } from "./TaskList";
+import type { Task } from "../schemas/task";
 
 interface Props {
-  totalProducts: number
-  readyProducts: number
-  totalTasks: number
-  completedTasks: number
-  mandatoryCompleted: boolean
-  isSessionReady: boolean
-  sessionTasks: Task[]
-  selectedTasks: Set<string>
-  allSelected: boolean
-  onToggleSelect: (id: string) => void
-  onToggleAll: () => void
-  onComplete: (id: string) => void
-  onUpdate: (id: string, title: string) => void
-  onDelete: (id: string) => void
-  showProductInfo: boolean
+  totalProducts: number;
+  readyProducts: number;
+  totalTasks: number;
+  completedTasks: number;
+  mandatoryCompleted: boolean;
+  isSessionReady: boolean;
+  sessionTasks: Task[];
+  selectedTasks: Set<string>;
+  allSelected: boolean;
+  onToggleSelect: (id: string) => void;
+  onToggleAll: () => void;
+  onComplete: (id: string) => void;
+  onUpdate: (id: string, title: string) => void;
+  onDelete: (id: string) => void;
+  showProductInfo: boolean;
 }
 
 export const SessionMetrics = ({
@@ -43,11 +43,13 @@ export const SessionMetrics = ({
   onDelete,
   showProductInfo,
 }: Props) => {
-  const tasksPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
-  const productsPercentage = totalProducts > 0 ? Math.round((readyProducts / totalProducts) * 100) : 0
+  const tasksPercentage =
+    totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const productsPercentage =
+    totalProducts > 0 ? Math.round((readyProducts / totalProducts) * 100) : 0;
 
   // Session is ready only if mandatory tasks are completed AND products are ready
-  const canGoLive = mandatoryCompleted && isSessionReady
+  const canGoLive = mandatoryCompleted && isSessionReady;
 
   return (
     <Card className="p-6 mb-8 border-border/50 bg-card">
@@ -113,7 +115,7 @@ export const SessionMetrics = ({
               animate={{ scale: 1, opacity: 1 }}
               className={cn(
                 "text-5xl font-bold font-mono leading-none tabular-nums",
-                tasksPercentage === 100 ? "text-green-500" : "text-foreground"
+                tasksPercentage === 100 ? "text-green-500" : "text-foreground",
               )}
             >
               {completedTasks}
@@ -130,7 +132,7 @@ export const SessionMetrics = ({
               "transition-all duration-500",
               tasksPercentage === 100
                 ? "bg-gradient-to-r from-green-500 to-emerald-500"
-                : "bg-gradient-to-r from-primary to-terrific-pink"
+                : "bg-gradient-to-r from-primary to-terrific-pink",
             )}
           />
 
@@ -154,10 +156,12 @@ export const SessionMetrics = ({
       >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Shield className={cn(
-              "h-4 w-4",
-              mandatoryCompleted ? "text-green-500" : "text-yellow-500"
-            )} />
+            <Shield
+              className={cn(
+                "h-4 w-4",
+                mandatoryCompleted ? "text-green-500" : "text-yellow-500",
+              )}
+            />
             <span className="text-sm font-medium text-foreground">
               Pre-Session Checklist
             </span>
@@ -187,34 +191,6 @@ export const SessionMetrics = ({
           </div>
         )}
       </motion.div>
-
-      {/* Go Live Button */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="mt-6 pt-6 border-t border-border/50"
-      >
-        <Button
-          disabled={!canGoLive}
-          size="lg"
-          className={cn(
-            "w-full h-12 text-sm font-semibold transition-all",
-            canGoLive
-              ? "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg shadow-green-500/25"
-              : "bg-muted text-muted-foreground cursor-not-allowed"
-          )}
-        >
-          {canGoLive ? (
-            <>
-              <Radio className="h-4 w-4 mr-2 animate-pulse" />
-              START LIVE SESSION
-            </>
-          ) : (
-            "Complete all tasks to start"
-          )}
-        </Button>
-      </motion.div>
     </Card>
-  )
-}
+  );
+};

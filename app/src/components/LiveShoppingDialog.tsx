@@ -16,25 +16,29 @@ import {
   Phone,
   Radio,
   AlertTriangle,
-  ShoppingCart,
   Share2,
   MessageSquare,
   Settings,
   Camera,
   Wifi,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import type { Product } from '@/schemas/product'
 
 interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
   canGoLive: boolean
+  products: Product[]
 }
 
-export const LiveShoppingDialog = ({ open, onOpenChange, canGoLive }: Props) => {
+export const LiveShoppingDialog = ({ open, onOpenChange, canGoLive, products }: Props) => {
   const [isStreaming, setIsStreaming] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const [isCameraOff, setIsCameraOff] = useState(false)
+  const [activeProductIndex, setActiveProductIndex] = useState(0)
   const videoRef = useRef<HTMLVideoElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
 
@@ -76,6 +80,7 @@ export const LiveShoppingDialog = ({ open, onOpenChange, canGoLive }: Props) => 
 
   const handleStartStream = () => {
     setIsStreaming(true)
+    setActiveProductIndex(0)
   }
 
   const handleEndStream = () => {
@@ -88,6 +93,30 @@ export const LiveShoppingDialog = ({ open, onOpenChange, canGoLive }: Props) => 
     handleEndStream()
     onOpenChange(false)
   }
+
+  // Reset index when products change
+  useEffect(() => {
+    setActiveProductIndex(0)
+  }, [products])
+
+  // Auto-rotate products every 5 seconds while streaming
+  useEffect(() => {
+    if (!isStreaming || products.length <= 1) return
+    const interval = setInterval(() => {
+      setActiveProductIndex(prev => (prev + 1) % products.length)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [isStreaming, products.length])
+
+  const handlePrevProduct = () => {
+    setActiveProductIndex(prev => (prev - 1 + products.length) % products.length)
+  }
+
+  const handleNextProduct = () => {
+    setActiveProductIndex(prev => (prev + 1) % products.length)
+  }
+
+  const activeProduct = products[activeProductIndex]
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -198,37 +227,73 @@ export const LiveShoppingDialog = ({ open, onOpenChange, canGoLive }: Props) => 
                   </div>
                 </div>
 
-                {/* Product Overlay */}
-                <div className="absolute bottom-4 left-4 right-4">
-                  <motion.div
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.5 }}
-                    className="bg-black/70 backdrop-blur-sm rounded-lg p-4"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center">
-                          <ShoppingCart className="h-6 w-6 text-terrific-orange" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-white">
-                            Featured Product
+                {/* Product Overlay — only if products exist */}
+                {products.length > 0 && activeProduct && (
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <motion.div
+                      key={activeProductIndex}
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                      className="bg-black/70 backdrop-blur-sm rounded-lg p-3"
+                    >
+                      {/* Active product */}
+                      <div className="flex items-center gap-3 mb-2">
+                        <img
+                          src={activeProduct.image}
+                          alt={activeProduct.title}
+                          className="w-14 h-14 rounded-md object-cover bg-white/10"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white truncate">
+                            {activeProduct.title}
                           </p>
                           <p className="text-xs text-gray-400">
-                            Tap to view details
+                            {activeProduct.category}
                           </p>
                         </div>
+                        <Button
+                          size="sm"
+                          className="bg-terrific-orange hover:bg-terrific-orange/90 text-white shrink-0"
+                        >
+                          ${activeProduct.price.toFixed(2)}
+                        </Button>
                       </div>
-                      <Button
-                        size="sm"
-                        className="bg-terrific-orange hover:bg-terrific-orange/90 text-white"
-                      >
-                        Buy Now - $99
-                      </Button>
-                    </div>
-                  </motion.div>
-                </div>
+
+                      {/* Navigation + dots */}
+                      {products.length > 1 && (
+                        <div className="flex items-center justify-between pt-1 border-t border-white/10">
+                          <button
+                            onClick={handlePrevProduct}
+                            className="p-1 rounded hover:bg-white/10 transition-colors"
+                          >
+                            <ChevronLeft className="h-4 w-4 text-white/70" />
+                          </button>
+                          <div className="flex items-center gap-1.5">
+                            {products.map((_, i) => (
+                              <button
+                                key={i}
+                                onClick={() => setActiveProductIndex(i)}
+                                className={cn(
+                                  "w-1.5 h-1.5 rounded-full transition-all",
+                                  i === activeProductIndex
+                                    ? "bg-terrific-orange w-4"
+                                    : "bg-white/30 hover:bg-white/50"
+                                )}
+                              />
+                            ))}
+                          </div>
+                          <button
+                            onClick={handleNextProduct}
+                            className="p-1 rounded hover:bg-white/10 transition-colors"
+                          >
+                            <ChevronRight className="h-4 w-4 text-white/70" />
+                          </button>
+                        </div>
+                      )}
+                    </motion.div>
+                  </div>
+                )}
               </motion.div>
 
               {/* Controls Bar */}

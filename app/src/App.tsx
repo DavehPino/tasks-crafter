@@ -13,6 +13,7 @@ import { PageSkeleton } from "./components/skeletons/PageSkeleton"
 import { Button } from "@/components/ui/button"
 import { LiveShoppingDialog } from "./components/LiveShoppingDialog"
 import { Moon, Sun, Radio } from "lucide-react"
+import type { Product } from "./schemas/product"
 
 // Lazy load pages for code splitting
 const ProductsPage = lazy(() => import("./pages/ProductsPage").then(m => ({ default: m.ProductsPage })))
@@ -25,6 +26,7 @@ export default function App() {
   const [isDark, setIsDark] = useState(false)
   const [isLiveDialogOpen, setIsLiveDialogOpen] = useState(false)
   const [canGoLive, setCanGoLive] = useState(false)
+  const [selectedProductsForLive, setSelectedProductsForLive] = useState<Product[]>([])
 
   const toggleTheme = () => {
     setIsDark(!isDark)
@@ -33,6 +35,10 @@ export default function App() {
 
   const handleMandatoryStatusChange = useCallback((status: boolean) => {
     setCanGoLive(status)
+  }, [])
+
+  const handleProductsSelected = useCallback((products: Product[]) => {
+    setSelectedProductsForLive(products)
   }, [])
 
   return (
@@ -106,7 +112,10 @@ export default function App() {
       <main className="max-w-full">
         <Suspense fallback={<PageSkeleton />}>
           {currentPage === "session" && (
-            <SessionPrepPage onMandatoryStatusChange={handleMandatoryStatusChange} />
+            <SessionPrepPage
+              onMandatoryStatusChange={handleMandatoryStatusChange}
+              onProductsSelected={handleProductsSelected}
+            />
           )}
           {currentPage === "tasks" && (
             <div className="max-w-6xl mx-auto px-4 py-6">
@@ -126,6 +135,7 @@ export default function App() {
         open={isLiveDialogOpen}
         onOpenChange={setIsLiveDialogOpen}
         canGoLive={canGoLive}
+        products={selectedProductsForLive}
       />
     </div>
   )

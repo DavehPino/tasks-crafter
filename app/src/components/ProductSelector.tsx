@@ -13,8 +13,7 @@ interface Props {
   isLoading: boolean
   isError: boolean
   onSelectionChange: (selectedProductIds: number[]) => void
-  onGenerateTasks: (products: Product[]) => void
-  isGeneratingTasks: boolean
+  onConfirmSelection: (products: Product[]) => void
 }
 
 export const ProductSelector = ({
@@ -22,8 +21,7 @@ export const ProductSelector = ({
   isLoading,
   isError,
   onSelectionChange,
-  onGenerateTasks,
-  isGeneratingTasks,
+  onConfirmSelection,
 }: Props) => {
   const [selected, setSelected] = useState<Set<number>>(new Set())
 
@@ -48,9 +46,9 @@ export const ProductSelector = ({
     }
   }
 
-  const handleGenerateTasks = () => {
+  const handleConfirmSelection = () => {
     const selectedProducts = products.filter(p => selected.has(p.id))
-    onGenerateTasks(selectedProducts)
+    onConfirmSelection(selectedProducts)
   }
 
   return (
@@ -131,23 +129,13 @@ export const ProductSelector = ({
                 className="flex gap-3 pt-2"
               >
                 <Button
-                  onClick={handleGenerateTasks}
-                  disabled={isGeneratingTasks}
+                  onClick={handleConfirmSelection}
                   variant="terrific"
                   size="lg"
                   className="flex-1 h-11"
                 >
-                  {isGeneratingTasks ? (
-                    <>
-                      <Sparkles className="h-4 w-4 mr-2 animate-spin" />
-                      Generating tasks...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      Generate Prep Tasks ({selected.size})
-                    </>
-                  )}
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Add to Live Session ({selected.size})
                 </Button>
               </motion.div>
             )}
